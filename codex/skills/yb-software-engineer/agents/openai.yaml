@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Software Engineer"
+  short_description: "Design the change, implement it, and verify the outcome"
+  default_prompt: "Use $yb-software-engineer to inspect this project, design the requested change, then implement and verify it."

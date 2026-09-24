@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Code Correctness Reviewer"
+  short_description: "Review behavior, algorithms, performance, and consistency"
+  default_prompt: "Use $yb-code-correctness-reviewer to review this change against its functional requirements, scale, and failure cases."

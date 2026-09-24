@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Code Design Reviewer"
+  short_description: "Review clean code, SOLID, and design consistency"
+  default_prompt: "Use $yb-code-design-reviewer to review this change for maintainability, SOLID, and requirement alignment."

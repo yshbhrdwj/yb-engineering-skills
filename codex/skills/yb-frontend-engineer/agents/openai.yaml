@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Frontend Engineer"
+  short_description: "Design and build polished, accessible frontend experiences"
+  default_prompt: "Use $yb-frontend-engineer to design and implement this interface with coherent visuals, complete interactions, and verified responsive behavior."
