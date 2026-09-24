@@ -4,7 +4,7 @@ Updated: 25 September 2026. Ten core skills, each packaged for Claude Code and C
 
 ## Public repository tooling
 
-The repository adds a standard-library validator, installer, and packaging command. Before publication, 31 helper tests passed locally: 14 validator tests and 17 installer tests. They exercise invalid metadata, missing links, platform drift, payload restrictions, safe installation, explicit updates and backups, dry runs, and preservation of unrelated files. Platform bundles build and pass archive integrity checks. These checks validate packaging and helper behavior; they do not establish skill reasoning quality or UI accessibility.
+The repository adds a standard-library validator, installer, and packaging command. The helper suite has 33 locally passing tests: 16 validator tests and 17 installer tests. They exercise invalid metadata, missing links, platform drift, payload restrictions, safe installation, explicit updates and backups, dry runs, and preservation of unrelated files. Platform bundles build and pass archive integrity checks. These checks validate packaging and helper behavior; they do not establish skill reasoning quality or UI accessibility.
 
 The GitHub Actions workflow runs the same checks on Linux, macOS, and Windows. Consult the workflow run for the current commit's actual CI results; the historical local skill trials below are separate evidence.
 

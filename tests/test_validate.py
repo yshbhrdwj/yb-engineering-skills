@@ -71,6 +71,18 @@ class ValidateRepositoryTests(unittest.TestCase):
         path.write_text(path.read_text().split("\n## Codex integration", 1)[0])
         self.assert_error("complete Codex integration footer at the end")
 
+    def test_frontmatter_rejects_yaml_nonstrings_and_decoded_controls(self):
+        path = self.skill() / "SKILL.md"
+        original = path.read_text()
+        for value, expected in [('null', 'ambiguous YAML scalar'),
+                                ('Review: code', 'ambiguous YAML scalar'),
+                                ('"\\u0000"', 'nonempty single-line string')]:
+            with self.subTest(value=value):
+                lines = original.splitlines()
+                lines[2] = "description: " + value
+                path.write_text("\n".join(lines) + "\n")
+                self.assert_error(expected)
+
     def test_metadata_must_invoke_its_skill(self):
         path = self.skill() / "agents/openai.yaml"
         path.write_text(path.read_text().replace("$yb-frontend-reviewer", "$yb-software-engineer"))
@@ -98,6 +110,10 @@ class ValidateRepositoryTests(unittest.TestCase):
         (self.root / "README.md").write_text("[missing](absent.md)\n[outside](../outside.md)\n")
         self.assert_error("missing local link target")
         self.assert_error("local link escapes the repository")
+
+    def test_malformed_local_link_is_an_error_not_an_exception(self):
+        (self.root / "README.md").write_text("[invalid](bad%00path.md)\n")
+        self.assert_error("invalid local link")
 
     def test_binary_and_unexpected_payloads(self):
         (self.skill() / "references/payload.md").write_bytes(b"\x00binary")

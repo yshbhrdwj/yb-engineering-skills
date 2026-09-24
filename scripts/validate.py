@@ -186,7 +186,12 @@ class Validator:
             elif value.startswith(("'", "|", ">", "[", "{", "&", "*", "!")):
                 self.error(path, f"line {number}: use a plain or JSON-quoted single-line string")
                 continue
-            if not isinstance(value, str) or not value.strip() or "\n" in value or "\r" in value:
+            elif (re.search(r":(?:\s|$)|(?:^|\s)#", value)
+                  or value.lower() in {"null", "~", "true", "false", "yes", "no", "on", "off"}
+                  or re.fullmatch(r"[-+]?(?:\d[\d_.eE+-]*|\.(?:inf|nan))", value, re.IGNORECASE)):
+                self.error(path, f"line {number}: quote this ambiguous YAML scalar as a JSON string")
+                continue
+            if not isinstance(value, str) or not value.strip() or any(ord(char) < 32 for char in value):
                 self.error(path, f"line {number}: {key} must be a nonempty single-line string")
                 continue
             fields[key] = value
@@ -248,6 +253,9 @@ class Validator:
         packages = {}
         cores = {}
         for platform in FOOTERS:
+            if (self.root / platform).is_symlink():
+                self.error(self.root / platform, "platform directory must not be a symlink")
+                continue
             root = self.root / platform / "skills"
             if root.is_symlink() or not root.is_dir():
                 self.error(root, "expected a regular directory containing the ten skills")
@@ -303,11 +311,16 @@ class Validator:
             self.error(source, f"line {line}: local link must use a repository-relative path: {target!r}")
             return
         path = source.parent / local if local else source
-        resolved = path.resolve()
+        try:
+            resolved = path.resolve()
+            exists = resolved.exists()
+        except (OSError, RuntimeError, ValueError) as exc:
+            self.error(source, f"line {line}: invalid local link {target!r} ({exc})")
+            return
         if not resolved.is_relative_to(self.root):
             self.error(source, f"line {line}: local link escapes the repository: {target!r}")
             return
-        if not resolved.exists():
+        if not exists:
             self.error(source, f"line {line}: missing local link target {target!r}")
             return
         if url.fragment and resolved.suffix.lower() == ".md":
