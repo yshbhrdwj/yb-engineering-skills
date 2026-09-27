@@ -30,7 +30,7 @@ Its architect section states boundaries, invariants, data/trust needs, constrain
 
 ## Verification and release
 
-Reviewers form initial assessments independently, then merge duplicate root causes. QA consolidates behavior evidence and gaps; operations checks the exact candidate/environment, migrations, rollback or forward repair, and observable release results. Product acceptance belongs to the relevant decision owner. Missing ownership stays explicit.
+Reviewers form initial assessments independently, then merge duplicate root causes. Code is reviewed by an agent that didn't write it, or the review is labeled a self-review. Before merging, read every review comment and get any review bot's review of the latest commit. QA consolidates behavior evidence and gaps; operations checks the exact candidate/environment, migrations, rollback or forward repair, and observable release results. Product acceptance belongs to the relevant decision owner. Missing ownership stays explicit.
 
 Security, privacy, accessibility, and operability begin during definition/design and are verified where appropriate. A late checklist cannot substitute for missing policy. Follow actual authorization for deployments, external communications, live-data changes, or retirement. Do not create monitoring schedules merely because operations appears in the workflow.
 

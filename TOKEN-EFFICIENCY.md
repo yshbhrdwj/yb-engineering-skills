@@ -39,3 +39,32 @@ The two frontend skills start compact; there is no earlier verbose version for a
 | `yb-frontend-reviewer` | 759 | 388 |
 
 The 52.1% reduction above describes the original eight-skill compression, not all ten skills or measured runtime savings. The product workflow reference now includes the two frontend roles.
+
+## Behavior pass — 28 September 2026
+
+This pass made the main files longer, not shorter. Counts use the same method as above: words in the shared core, platform footers excluded.
+
+| Skill | Main file before | Main file after | Change |
+| --- | ---: | ---: | ---: |
+| `yb-product-strategist` | 817 | 965 | +18.1% |
+| `yb-solution-architect` | 754 | 813 | +7.8% |
+| `yb-software-engineer` | 761 | 1,347 | +77.0% |
+| `yb-frontend-engineer` | 815 | 1,241 | +52.3% |
+| `yb-frontend-reviewer` | 759 | 1,053 | +38.7% |
+| `yb-qa-engineer` | 791 | 992 | +25.4% |
+| `yb-code-design-reviewer` | 691 | 1,045 | +51.2% |
+| `yb-code-correctness-reviewer` | 713 | 1,107 | +55.3% |
+| `yb-security-privacy` | 707 | 1,070 | +51.3% |
+| `yb-release-operator` | 704 | 996 | +41.5% |
+| **Total** | **7,512** | **10,629** | **+41.5%** |
+
+The growth comes from new procedures, including:
+
+- a merge gate
+- four state-change cases
+- independent review of your own code
+- a short report shape
+
+It also comes from one example output per skill and plainer wording. The product handoff reference grew from 693 to 757 words; it now gives IDs only to requirements.
+
+In the small trial recorded in [VALIDATION.md](VALIDATION.md#behavior-pass--28-september-2026), the longer instructions produced shorter replies: 40–70% fewer words. Tokens per run were about the same. That trial has two runs per version, so it is not evidence of runtime savings.

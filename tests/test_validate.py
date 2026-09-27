@@ -44,7 +44,10 @@ class ValidateRepositoryTests(unittest.TestCase):
 
     def test_shared_core_drift(self):
         path = self.skill("claude-code") / "SKILL.md"
-        path.write_text(path.read_text().replace("Assess how the interface", "Reconsider how the interface", 1))
+        original = path.read_text()
+        changed = original.replace("# YB Frontend Reviewer", "# YB Frontend Reviewer (edited)", 1)
+        self.assertNotEqual(changed, original, "mutation target missing; update this test")
+        path.write_text(changed)
         self.assert_error("shared core differs from Codex")
 
     def test_reference_drift(self):
