@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Mobile Design System"
+  short_description: "Design, specify, and audit polished mobile interfaces"
+  default_prompt: "Use $yb-mobile-design-system to design or audit this mobile interface with the smallest adequate workflow and labeled evidence."

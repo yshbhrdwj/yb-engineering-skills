@@ -8,6 +8,7 @@ Use one role for a small task. Add specialists only where they resolve a distinc
 | Decide contracts, data or system boundaries | `yb-solution-architect` |
 | Implement a feature or fix | `yb-software-engineer` |
 | Build or refine an interface | `yb-frontend-engineer` |
+| Decide mobile visual direction, tokens, component specs or a design audit | `yb-mobile-design-system` |
 | Review a code change | `yb-code-reviewer` |
 | Review the interface people use | `yb-frontend-reviewer` |
 | Check security or personal-data handling | `yb-security-privacy` |

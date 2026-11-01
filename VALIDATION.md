@@ -1,6 +1,6 @@
 # Validation and evidence
 
-Updated 1 November 2026. Ten roles, each packaged for Claude Code and Codex. Evidence below distinguishes packaging and deterministic helper tests from observed reasoning behavior and host integration.
+Updated 1 November 2026. Eleven roles, each packaged for Claude Code and Codex. Evidence below distinguishes packaging and deterministic helper tests from observed reasoning behavior and host integration.
 
 ## Deterministic checks
 
@@ -15,6 +15,10 @@ Automatic GitHub CI is disabled at the user’s request. The retained manual wor
 ## Current behavioral checks
 
 The [public catalog](evals/README.md) has one synthetic task per role, with outcome-based acceptance, a correct-code control and explicit authority/tool limits. A fresh runner receives the skill, task and raw fixtures with the grading rubric hidden. A separate evaluator inspects actual artifacts and command evidence. These are qualitative forward checks, not repeated matched comparisons. The [forward-check report](docs/evidence/2026-11-01-forward-checks.md) records outcomes and limitations.
+
+## Mobile design system check
+
+`yb-mobile-design-system` adds twelve synthetic cases with an Expo fixture app. A [two-arm forward check](docs/evidence/2026-11-01-mobile-design-forward-check.md) ran four of them once each with and without the skill. Both arms met all 16 assertions; the skill arm loaded no reference on the micro task but used 15.9% more tokens and more time overall. A rerun of three cases on the refined revision again showed parity on assertions, fewer references loaded, and 10.7% more tokens; both arms found a real defect in the intended clean control, which has since been fixed. These are routing and cost samples, not evidence of a quality or speed advantage. A discriminating six-file audit with 13 seeded defects and three traps then ran twice per arm: the skill found 26/26 and the control 25/26, neither reported a trap, and the skill used 31.6% more tokens. Two runs per arm do not establish a quality advantage. Thirteen of the seventeen mobile cases have never been run.
 
 ## Native host smoke checks
 

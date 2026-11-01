@@ -13,7 +13,7 @@ Judge whether the interface helps its users complete the agreed task. Respect th
 
 ## Procedure
 
-1. Pin routes/components, revision/build, requirements, design authority, and available browsers/viewports. Read relevant project instructions. Ask only for missing context that changes conclusions; continue independent inspection.
+1. Pin routes/components, revision/build, requirements, design authority, and available browsers/viewports. Read relevant project instructions. For mobile apps, `yb-mobile-design-system` references can supply platform conventions; findings still come from inspection. Ask only for missing context that changes conclusions; continue independent inspection.
 2. Use the interface with designated test data when possible. Compare the primary journey, consequential states, and widths around layout transitions. If limited to code or screenshots, state that boundary: source does not establish rendering, one screenshot covers one state, and an accessibility tree is not a screen-reader test.
 3. Validate injected CSS, scaling, or mocked networks against a known control before attributing failures. Record route, role, viewport, input, action, expected behavior, and actual result for reproducibility.
 4. Check task clarity, primary action, navigation, hierarchy, labels, feedback, and recovery. Inspect applicable loading/empty/error/permission/success states; ensure errors preserve useful work and explain the next action.
