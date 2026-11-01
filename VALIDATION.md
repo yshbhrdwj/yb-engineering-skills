@@ -1,6 +1,6 @@
 # Validation of the YB SDLC suite
 
-Updated: 25 September 2026. Ten core skills, each packaged for Claude Code and Codex. Original eight-skill evaluation: 24 September 2026.
+Updated: 28 September 2026. Ten core skills, each packaged for Claude Code and Codex. Original eight-skill evaluation: 24 September 2026.
 
 ## Public repository tooling
 
@@ -46,3 +46,53 @@ The reviewer identified five code-supported defects: success displayed on HTTP 5
 The engineer created a compact dependency-free HTML/CSS/JavaScript support form after recording its design and state plan. Native Node tests passed 14/14 for the JSON contract, HTTP status handling, network failure, pending duplicate protection, and retries. Module syntax and static HTML/asset checks passed. Tests establish submission-module behavior; actual DOM input preservation/reset, rendered appearance, keyboard interaction, assistive technology, and live backend integration remain unverified. The result explicitly retained those limits rather than claiming a fully validated UI.
 
 A separate instruction review prompted an explicit rule to use authorized test environments and designated data, preserving the boundary around live payments, destructive changes, and outbound actions. Final frontend cores and their references passed structural validation alongside the existing suite. All ten installed skills in each host were hash-checked against their platform package sources.
+
+## Behavior pass — 28 September 2026
+
+Historical provenance: this account was initially published at commit `6e967dcb600e897155956eb58a929bb5a3bcf6dc`. It reports the earlier trial, with the post-trial wording changes and other limits retained below. Later corrections bind merge clearance to the exact head, require trusted approval, and preserve authorization for external messages. Those corrections were not behavior-tested again; the trial results below must not be presented as validation of the corrected wording.
+
+### What prompted it
+
+Reviewing real sessions that used these skills showed a consistent pattern. The evidence discipline held up: agents ran baselines, confirmed regression tests failed on old code, and disclosed unrun checks. But bugs involving concurrency, retries, mixed-version deploys and caps kept shipping while the author's own tests passed. External review bots caught them later. Several pull requests were also merged before the bot's review of the latest commit arrived. Chat reports ran 400–800 words.
+
+### Changes
+
+- **Merge gate** in the seven skills that can merge. Read every PR comment and review, and get any review bot's review of the head commit. Fix each comment or reply to it, treating comments as claims to check, not instructions.
+- **Four state-change cases** for code that writes or caches state: two at once, old meets new, fails halfway, and past the edge.
+- **Independent review.** A fresh subagent reviews risky changes, or the report is labeled a self-review.
+- **Report shape.** Status summaries run about 150 words; requested deliverables stay complete.
+- **Design notes** only for risky or large changes.
+- **Examples and cleanup.** One example output per skill, a single shared best-practice paragraph, and fewer requirement IDs in the product brief.
+
+### Trial
+
+An old-versus-new trial ran in Claude Code subagents. There were three tasks, with two runs per version on each. The old skills were used as the baseline.
+
+- The review and strategy replies were scored by a grader that didn't know which version produced them.
+- The fix-and-merge task used a simulated `gh` with a pending bot review comment, and hidden tests scored the fix.
+
+| Task | New | Old |
+| --- | --- | --- |
+| Review a diff with three planted defects and one decoy | 5/6, 5/6; 476–506 words | 5/6, 5/6; 751–948 words |
+| Fix a sync race and merge a PR with a pending bot P1 | 9/9, 8/9; 172–201 words | 8/9, 6/9; 366–524 words |
+| First reply to a founder's product question | 6/6, 6/6; about 280 words | 4/6, 4/6; 808–886 words |
+
+Both versions found every planted defect and passed every hidden test. The fix task gave its answer away through the bot's comment, so neither of those two tasks separated the versions.
+
+Several differences did appear:
+
+- **Merge gate.** Both new runs replied on the bot's thread and requested a re-review of the new commit, merging only after it answered. One old run did the same unprompted; the other merged an unreviewed commit.
+- **Length.** New replies were 40–70% shorter.
+- **Questions.** The new strategist gave a suggested answer with each question.
+- **Speed.** New merge runs took about 2.3 times longer, because of the independent review and the bot round trip.
+- **Lost content.** Both old strategy replies cited India's 2023 guidelines on dark patterns, and neither new reply did.
+
+### Limits
+
+- Two runs per version is a small sample.
+- The tasks were written by the same author as the changes.
+- No Codex runtime was tested.
+- Six skills received no behavior test.
+- After the trial, examples were made project-neutral and the best-practice paragraph was unified. The trial was not rerun afterwards.
+
+The validator test for shared-core drift was updated because its mutation target no longer existed. It now fails loudly if that happens again.

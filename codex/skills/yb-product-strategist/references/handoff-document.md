@@ -2,7 +2,9 @@
 
 Use for a final brief or a substantial revision. Scale depth to the product. Default to one Markdown document with distinct architect and engineer sections. If split, link one authoritative requirements register rather than copying conflicting versions.
 
-State each policy and open decision once, then refer to its ID in journeys and handoffs. Avoid repeating the same uncertainty in every section. Separate an accepted capability from proposed detailed behavior or acceptance thresholds; user approval of a feature does not approve every design choice. Keep a narrow product brief compact while retaining material requirements and unresolved decisions.
+Aim for a brief a founder can read in about ten minutes. Give IDs only to the rows of the requirements table in section 4: FR-, NFR-, and UX-, plus MET- or RISK- when a metric or risk is itself a requirement. Refer to assumptions, experiments, policies, and open decisions by short names, unless the project already numbers them. A draft carrying more than a few dozen IDs is too granular to be read.
+
+State each policy and open decision once, then refer to it by name in journeys and handoffs. Avoid repeating the same uncertainty in every section. Separate an accepted capability from proposed detailed behavior or acceptance thresholds; user approval of a feature does not approve every design choice. Keep a narrow product brief compact while retaining material requirements and unresolved decisions.
 
 ## 1. Decision summary
 
@@ -12,7 +14,7 @@ Record title, version/date, scope, sources, known owner, and proposal/accepted s
 
 Describe users and context, buyer/payer differences, desired outcomes, existing alternatives, pain frequency/severity, and the differentiator being tested. Summarize concepts considered, choice, tradeoffs, and disconfirming evidence.
 
-For material assumptions use: **ID | claim | source/evidence | confidence/limits | consequence if wrong | validation**. Use `ASM-` and `EXP-` or existing project IDs. Keep user assertions, observations, and experiment plans distinct. Cite external evidence and relevant dates; never fabricate research.
+List material assumptions as short bullets: the claim, where it came from, what breaks if it's wrong, and how to test it. Keep user assertions, observations, and experiment plans distinct. Cite external evidence and relevant dates; never fabricate research.
 
 ## 3. Experience and scope
 
@@ -27,7 +29,7 @@ Use stable `FR-` behavior, `NFR-` quality, `UX-` experience, `MET-` metric, and 
 | ID | Observable requirement | Source | Decision status | Priority/slice | Acceptance example | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- |
 
-Decision status: **accepted**, **proposed**, **assumed**, **deferred**, or **unknown**. Accepted requires explicit user intent or an authoritative requirement. Track **verified/partial/unverified/not applicable** separately when actual evidence exists. Agreement on a target does not verify it.
+Decision status: **accepted**, **proposed**, **assumed**, **deferred**, or **unknown**. Accepted requires explicit user intent or an authoritative requirement. Agreement on a target does not verify it.
 
 Acceptance examples state initial condition, action, expected result, and significant failure outcome. Quality targets need relevant units, percentile, workload, environment, or time bounds. Missing thresholds remain unknown/proposed. Include consequential security, privacy, accessibility, operability, and compatibility requirements here, not just in prose.
 
