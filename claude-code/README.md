@@ -1,6 +1,6 @@
 # Claude Code edition
 
-Copy the ten complete folders from `skills/` into `~/.claude/skills/` or `<project>/.claude/skills/`. The source repository installer supports dry runs, backups and migration. Restart the session if discovery does not refresh.
+Copy the eleven complete folders from `skills/` into `~/.claude/skills/` or `<project>/.claude/skills/`. The source repository installer supports dry runs, backups and migration. Restart the session if discovery does not refresh.
 
 ```text
 /yb-software-engineer Fix the defect and verify the affected behavior.

@@ -30,7 +30,7 @@ class PackageTests(unittest.TestCase):
                 self.assertIn('outside packaged source trees', result.stderr)
                 self.assertFalse(output.exists())
 
-    def test_bundles_include_ten_skills_and_working_hook_installer(self):
+    def test_bundles_include_eleven_skills_and_working_hook_installer(self):
         with tempfile.TemporaryDirectory(prefix='yb-bundle-') as temporary:
             base = Path(temporary).resolve()
             output = base / 'archives'
@@ -43,7 +43,7 @@ class PackageTests(unittest.TestCase):
             for platform in ('codex', 'claude-code'):
                 with zipfile.ZipFile(output / f'{platform}-engineering-skills.zip') as bundle:
                     self.assertIsNone(bundle.testzip())
-                    self.assertEqual(sum(x.endswith('/SKILL.md') for x in bundle.namelist()), 10)
+                    self.assertEqual(sum(x.endswith('/SKILL.md') for x in bundle.namelist()), 11)
                     bundle.extractall(base)
                 extracted = base / f'{platform}-engineering-skills'
                 self.assertTrue((extracted / 'evals/cases.json').is_file())
