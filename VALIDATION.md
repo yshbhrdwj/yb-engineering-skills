@@ -22,7 +22,14 @@ The [public catalog](evals/README.md) has one synthetic task per role, with outc
 
 ## Unified web and mobile frontend check
 
-On 2 November 2026 (macOS, Python 3.14.4, branch commit that adds this section), `python3 scripts/validate.py` passed for 11 skills, and `python3 -m unittest discover -s tests` ran 138 tests with all passing. pytest is not installed in this environment, so `python3 -m pytest` could not run. The first unittest run failed one packaging test: a repository-relative link from `SDLC-WORKFLOW.md` into `codex/skills/` does not resolve in the flattened bundle. The link was replaced with a backticked path and the suite then passed. Sixteen frontend cases were added. A single-run [forward check](docs/evidence/2026-11-02-frontend-unified-forward-check.md) ran two of them, old against new skill, with author grading. Both arms passed the fast-path case identically. On the native review case both arms found 6/6 seeded defects, and the new arm reported one trap. Fourteen new cases have not run. The transfer fixture's defects were confirmed by executing it directly with Node 25.9.0, not by a model run. No simulator, emulator, device, browser, or assistive-technology evidence was produced.
+On 2 November 2026 (macOS, Python 3.14.4, after merging main `ec9969a`), `python3 scripts/validate.py` passed for 12 skills, and `python3 -m unittest discover -s tests` ran 138 tests with all passing. pytest is not installed in this environment, so `python3 -m pytest` could not run. The first unittest run failed one packaging test: a repository-relative link from `SDLC-WORKFLOW.md` into `codex/skills/` does not resolve in the flattened bundle. The link was replaced with a backticked path and the suite then passed. Sixteen frontend cases were added. A single-run [forward check](docs/evidence/2026-11-02-frontend-unified-forward-check.md) ran four of them, old against new skill, with author grading.
+
+- Fast-path case: both arms identical.
+- Native review: both arms found 6/6 seeded defects. The new arm reported one trap; after a probe clarification, a rerun reported none.
+- Transfer QA case: both arms met 4/4.
+- Authority case: the first new wording shipped a known contrast failure, a regression against the old skill. A revised wording fixed it in one rerun.
+
+One answer-key criterion was revised after these runs, and the change is disclosed in the record. Twelve new cases have not run. The transfer fixture's defects were confirmed by executing it directly with Node 25.9.0, not by a model run. No simulator, emulator, device, browser, or assistive-technology evidence was produced.
 
 ## Native host smoke checks
 

@@ -908,7 +908,7 @@
         "fixtures/frontend/monorepo/apps/mobile/Badge.tsx"
       ],
       "acceptance": [
-        "Treats the shared badge token as a genuinely cross-platform decision and consults both design authorities, stating plainly when yb-web-design-system is not installed and using DESIGN.md and tokens.ts instead",
+        "Treats the approved DESIGN.md and shared packages/ui/tokens.ts as the authority for both apps, loading a design-system skill only for a question they leave open (such as the contrast fix)",
         "Does not describe the guidance or capabilities of a design-authority skill it could not read",
         "Computes the approved dark pair (#6B7280 on #1F2937, about 3.0:1) and raises the conflict with 4.5:1 text contrast explicitly, neither shipping it silently nor silently replacing the approved color",
         "Adds the dark values in packages/ui/tokens.ts and uses them in both Badge components without unrelated changes"
