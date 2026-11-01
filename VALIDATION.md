@@ -49,6 +49,8 @@ A separate instruction review prompted an explicit rule to use authorized test e
 
 ## Behavior pass — 28 September 2026
 
+Historical provenance: this account was initially published at commit `6e967dcb600e897155956eb58a929bb5a3bcf6dc`. It reports the earlier trial, with the post-trial wording changes and other limits retained below. Later corrections bind merge clearance to the exact head, require trusted approval, and preserve authorization for external messages. Those corrections were not behavior-tested again; the trial results below must not be presented as validation of the corrected wording.
+
 ### What prompted it
 
 Reviewing real sessions that used these skills showed a consistent pattern. The evidence discipline held up: agents ran baselines, confirmed regression tests failed on old code, and disclosed unrun checks. But bugs involving concurrency, retries, mixed-version deploys and caps kept shipping while the author's own tests passed. External review bots caught them later. Several pull requests were also merged before the bot's review of the latest commit arrived. Chat reports ran 400–800 words.

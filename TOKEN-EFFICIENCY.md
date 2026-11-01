@@ -44,6 +44,8 @@ The 52.1% reduction above describes the original eight-skill compression, not al
 
 This pass made the main files longer, not shorter. Counts use the same method as above: words in the shared core, platform footers excluded.
 
+Historical provenance: the table and account below record the initial published behavior pass at commit `6e967dcb600e897155956eb58a929bb5a3bcf6dc`. Later merge-gate corrections changed the wording and main-file sizes; these are historical counts, not counts of the corrected package. The corrections were not followed by a behavior-trial rerun, so the trial does not establish the behavior of the corrected wording.
+
 | Skill | Main file before | Main file after | Change |
 | --- | ---: | ---: | ---: |
 | `yb-product-strategist` | 817 | 965 | +18.1% |
