@@ -1,0 +1,25 @@
+.btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-2);
+  font-size: var(--font-size-control);
+  line-height: var(--line-height-control);
+  font-weight: 600;
+}
+
+.btn-primary {
+  padding: 7px 13px;
+  border: 0;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Border is inside the box, so padding gives back the border width. */
+.btn-secondary {
+  padding: calc(var(--space-2) - var(--border)) calc(var(--space-4) - var(--border));
+  border: var(--border) solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+}

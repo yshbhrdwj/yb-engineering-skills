@@ -1,0 +1,4 @@
+.btn { height: 44px; border-radius: 4px; background: #2b56c9; color: #fff; }
+.card { border-radius: 10px; }
+.invoices tr { height: var(--row-compact); }
+.btn-cancel-subscription { background: var(--color-danger); color: #fff; }

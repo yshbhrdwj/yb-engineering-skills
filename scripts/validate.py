@@ -23,7 +23,7 @@ EXPECTED_NAMES = frozenset({
     "yb-frontend-engineer", "yb-frontend-reviewer", "yb-mobile-design-system",
     "yb-product-strategist",
     "yb-qa-engineer", "yb-release-operator", "yb-security-privacy",
-    "yb-software-engineer", "yb-solution-architect",
+    "yb-software-engineer", "yb-solution-architect", "yb-web-design-system",
 })
 REVIEWERS = {"yb-code-reviewer", "yb-frontend-reviewer", "yb-security-privacy"}
 REVIEWER_AGENTS = {name: "general-purpose" if name == "yb-frontend-reviewer" else "Explore"

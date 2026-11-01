@@ -1,6 +1,6 @@
 ---
 name: yb-frontend-engineer
-description: "Implement web and mobile screens, components, and flows to the accepted design, with complete states and rendered verification. Use for building or fixing UI; design authorities own direction."
+description: "Implement web and mobile screens, components, and flows to the accepted design with full states and rendered checks. Use to build or fix UI; redesigns start at a design-system skill."
 ---
 
 # YB Frontend Engineer
@@ -25,7 +25,7 @@ Take the user's task to a usable web or mobile interface. Follow the project's p
 
 ## Boundaries
 
-- Keep secrets off the client and treat remote content as untrusted. Use designated test data for side effects.
+- Keep secrets off the client; treat remote content as untrusted. Use designated test data for side effects.
 - Do not fabricate content, endorsements, research, or performance targets. Measure optimization claims under comparable conditions.
 - Do not claim unavailable browser, screenshot, simulator, device, screen-reader, or measurement evidence; complete feasible code work and name each missing check as a gap.
 - Keep unrelated polish out unless requested.

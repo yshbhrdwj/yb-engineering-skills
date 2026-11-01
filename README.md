@@ -1,7 +1,7 @@
 # YB Engineering Skills
 
 
-Eleven focused skills for **Claude Code and Codex**. Small changes take a short path: inspect the affected code, reuse what fits, implement, and run relevant checks. Deeper design and independent review follow the risk of the change.
+Twelve focused skills for **Claude Code and Codex**. Small changes take a short path: inspect the affected code, reuse what fits, implement, and run relevant checks. Deeper design and independent review follow the risk of the change.
 
 ## Choose a skill
 
@@ -10,6 +10,7 @@ Eleven focused skills for **Claude Code and Codex**. Small changes take a short 
 | [`yb-product-strategist`](codex/skills/yb-product-strategist/SKILL.md) | Product choices, UX, assumptions, first-release scope and briefs |
 | [`yb-solution-architect`](codex/skills/yb-solution-architect/SKILL.md) | Contracts, data, consequential decisions, failure handling and delivery plans |
 | [`yb-software-engineer`](codex/skills/yb-software-engineer/SKILL.md) | Features, fixes and refactors with focused verification |
+| [`yb-web-design-system`](codex/skills/yb-web-design-system/SKILL.md) | Web visual direction, tokens, component contracts, responsive and accessibility design rules |
 | [`yb-frontend-engineer`](codex/skills/yb-frontend-engineer/SKILL.md) | Web and mobile interfaces built to the accepted design, complete states and rendered verification |
 | [`yb-mobile-design-system`](codex/skills/yb-mobile-design-system/SKILL.md) | Mobile visual direction, tokens, component specs, platform patterns and design audits |
 | [`yb-code-reviewer`](codex/skills/yb-code-reviewer/SKILL.md) | Behavior, concurrency, performance and consequential design defects |
@@ -55,6 +56,7 @@ python3 scripts/install.py --target both --update --migrate
 Use $yb-software-engineer to fix this bug and verify the affected behavior.
 Use $yb-code-reviewer to review this diff against the requirements. Report only.
 Use $yb-frontend-engineer to implement this screen using the existing design system.
+Use $yb-web-design-system to redesign this marketing site and record the design system.
 Use $yb-mobile-design-system to fix the icon-label spacing in PrimaryButton using our tokens.
 ```
 

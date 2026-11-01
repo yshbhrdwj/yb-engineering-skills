@@ -67,8 +67,8 @@ def main(argv=None):
         with zipfile.ZipFile(target) as bundle:
             if bundle.testzip() is not None:
                 raise RuntimeError(f'Corrupt archive: {target}')
-            if sum(p.endswith('/SKILL.md') for p in bundle.namelist()) != 11:
-                raise RuntimeError(f'Expected eleven skills in {target}')
+            if sum(p.endswith('/SKILL.md') for p in bundle.namelist()) != 12:
+                raise RuntimeError(f'Expected twelve skills in {target}')
         print(f'Created {target} ({target.stat().st_size:,} bytes)')
 
 
