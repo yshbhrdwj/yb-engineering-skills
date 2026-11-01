@@ -626,6 +626,329 @@
         "Covers first-release pages and their loading, empty, error, and permission states, and specifies contracts only for components those pages need",
         "Persists a design document with status and decision log, hands off to yb-frontend-engineer, and loads foundations once without reading every playbook"
       ]
+    },
+    {
+      "id": "fe-web-css-fast-path",
+      "skill": "yb-frontend-engineer",
+      "path": "fast",
+      "max_skill_references": 0,
+      "prompt": "On the pricing card the body text touches the card border. Fix it with the existing tokens. No browser is available.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/tokens.css",
+        "fixtures/frontend/web/PricingCard.css"
+      ],
+      "acceptance": [
+        "Replaces the 2px body padding with spacing tokens consistent with the header and footer (for example var(--space-4) horizontally) and changes no other rule",
+        "Reads no skill reference, consults no design authority, and runs no audit, reviewer, or delegation",
+        "Reports in a few lines and states that the change was not rendered in a browser"
+      ]
+    },
+    {
+      "id": "fe-rn-style-fast-path",
+      "skill": "yb-frontend-engineer",
+      "path": "fast",
+      "max_skill_references": 1,
+      "prompt": "List rows look cramped; titles nearly touch the row above. Fix ListRow using the theme. Expo app; no simulator or emulator is available.",
+      "files": [
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/theme.ts",
+        "fixtures/frontend/expo-app/DESIGN.md",
+        "fixtures/frontend/expo-app/ListRow.tsx"
+      ],
+      "acceptance": [
+        "Replaces paddingVertical 3 with theme.space.md as DESIGN.md specifies, keeping minHeight, roles, and font scaling unchanged",
+        "Consults no design authority or reviewer, adds no dependency, and changes no other file",
+        "States that nothing was rendered on an iOS simulator or Android emulator"
+      ]
+    },
+    {
+      "id": "fe-responsive-web-component",
+      "skill": "yb-frontend-engineer",
+      "path": "standard",
+      "prompt": "Create a PlanComparison component (React and CSS) showing Starter, Team, and Enterprise plans with name, monthly price, three features each, and a Select action. It appears on the full-width pricing page and inside a 360px-wide upgrade sidebar in the app. Use the existing tokens. No browser is available.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/tokens.css"
+      ],
+      "acceptance": [
+        "Lays out by available container width (a container query or an intrinsic grid such as auto-fit/minmax), so plans stack inside the 360px sidebar rather than responding to the viewport alone",
+        "Select actions are native buttons or a radio group whose accessible names identify the plan, with visible focus",
+        "Uses tokens.css values only and adds no dependency",
+        "Does not load mobile references or a mobile design authority, and reports narrow, intermediate, and wide layouts as not rendered"
+      ]
+    },
+    {
+      "id": "fe-native-component",
+      "skill": "yb-frontend-engineer",
+      "path": "standard",
+      "prompt": "Create a reusable QuantityStepper for the cart (decrement, value, increment; minimum 1, maximum 10) following the theme and DESIGN.md. Expo app for iOS and Android; no simulator or emulator is available.",
+      "files": [
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/app.json",
+        "fixtures/frontend/expo-app/theme.ts",
+        "fixtures/frontend/expo-app/DESIGN.md",
+        "fixtures/frontend/expo-app/ListRow.tsx"
+      ],
+      "acceptance": [
+        "Exposes the value and bounds to assistive technology (adjustable role with accessibilityValue and increment/decrement actions, or labeled buttons with disabled state at the bounds and an announced value)",
+        "Gives each control at least a theme.minTouch target through size or hitSlop and keeps text scaling enabled",
+        "Reuses Pressable and theme values, adds no dependency, and treats DESIGN.md or yb-mobile-design-system as the authority rather than web guidance",
+        "States that no simulator, emulator, or device check ran and names the remaining rendered checks"
+      ]
+    },
+    {
+      "id": "fe-saas-dashboard-screen",
+      "skill": "yb-frontend-engineer",
+      "path": "standard",
+      "prompt": "Build the usage dashboard screen to dashboard-spec.md, replacing the draft. No browser or backend is available.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/tokens.css",
+        "fixtures/frontend/web/dashboard-spec.md",
+        "fixtures/frontend/web/UsageDashboard.tsx",
+        "fixtures/frontend/web/dashboard.css"
+      ],
+      "acceptance": [
+        "Implements distinct loading, empty, error-with-retry that keeps previous data, and loaded states, never showing 0 while loading",
+        "Shows status as text (Within quota or Over quota) and contains horizontal table scrolling within its own region instead of the fixed 960px width",
+        "Stays on the standard path: no app-wide audit, mobile reference, or new dependency",
+        "Reports that browser rendering and the 320px-to-wide range were not checked"
+      ]
+    },
+    {
+      "id": "fe-mobile-onboarding-redesign",
+      "skill": "yb-frontend-engineer",
+      "path": "comprehensive",
+      "prompt": "Our onboarding looks dated and unpolished. Redesign the three-step onboarding and implement it so it can ship this sprint. Expo app; no simulator or emulator is available.",
+      "files": [
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/app.json",
+        "fixtures/frontend/expo-app/theme.ts",
+        "fixtures/frontend/expo-app/DESIGN.md",
+        "fixtures/frontend/expo-app/OnboardingScreen.tsx"
+      ],
+      "acceptance": [
+        "Takes visual direction from yb-mobile-design-system, or states it is unavailable and uses DESIGN.md and theme.ts, instead of inventing an unanchored identity",
+        "Works in reviewable increments or stops for direction acceptance, and plans independent review and QA rather than one uncontrolled rewrite",
+        "Preserves behavior: marketing opt-in defaults off, Skip finishes with opt-in false, and steps advance in order",
+        "Corrects the inherited fixed 60-point top padding (safe-area insets), allowFontScaling false, #999 body text (2.85:1 on white), and the Skip Text without a button role or adequate target",
+        "Claims no rendered, simulator, or device evidence"
+      ]
+    },
+    {
+      "id": "rev-web-dashboard",
+      "skill": "yb-frontend-reviewer",
+      "review_mode": "screen",
+      "prompt": "Independently review the usage dashboard (UsageDashboard.tsx, dashboard.css) against dashboard-spec.md before release. Code only: no browser is available. Report only; do not edit.",
+      "files": [
+        "fixtures/frontend/web/dashboard-spec.md",
+        "fixtures/frontend/web/tokens.css",
+        "fixtures/frontend/web/UsageDashboard.tsx",
+        "fixtures/frontend/web/dashboard.css"
+      ],
+      "seeded_defects": [
+        "While loading, the KPI shows 0 requests and an empty table instead of a loading state (FR-2)",
+        "Zero projects renders headers only, with no explanation or Create project action (FR-3)",
+        "There is no error state or Retry, and failures are indistinguishable from zero usage (FR-4)",
+        "Status is a colored dot only, with no text or accessible name (FR-5)",
+        "The table has a fixed 960px width with no contained scrolling, so narrow viewports scroll the page (FR-6)"
+      ],
+      "traps": [
+        "Right-aligned tabular-nums request counts are correct",
+        "Header cells without scope in this single-header-row table are acceptable"
+      ],
+      "acceptance": [
+        "Reports at least 4 of the 5 seeded defects, each with location, impact, correction, and retest",
+        "Reports neither trap as a defect",
+        "Labels findings as code-supported and does not claim rendered widths, keyboard, or screen-reader checks",
+        "Leaves files unchanged and stays at screen scope without an application-wide audit"
+      ]
+    },
+    {
+      "id": "rev-native-order-detail",
+      "skill": "yb-frontend-reviewer",
+      "review_mode": "screen",
+      "prompt": "Independently review OrderDetail.tsx in our Expo app for iOS and Android before release. Code only: no simulator, emulator, or device is available. Report only; do not edit.",
+      "files": [
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/app.json",
+        "fixtures/frontend/expo-app/theme.ts",
+        "fixtures/frontend/expo-app/DESIGN.md",
+        "fixtures/frontend/expo-app/OrderDetail.tsx"
+      ],
+      "seeded_defects": [
+        "The hardwareBackPress listener always returns true, so Android back does nothing on this screen",
+        "Core react-native SafeAreaView applies no insets on Android, leaving content and the bottom controls unprotected from system bars (either reading counts)",
+        "maxFontSizeMultiplier 1 disables text scaling on the title, contrary to DESIGN.md",
+        "The delivery note input has a placeholder and no label",
+        "No keyboard avoidance: the keyboard can cover the bottom input and Save",
+        "Save note is 30 points tall without hitSlop (below theme.minTouch) and has no button role"
+      ],
+      "traps": [
+        "Close is 32 points plus hitSlop 6 on each side, a 44-point target, with a button role and label",
+        "android_ripple on Android and opacity feedback on iOS is intended platform divergence"
+      ],
+      "acceptance": [
+        "Reports at least 5 of the 6 seeded defects, distinguishing Android-only from cross-platform behavior",
+        "Reports neither trap as a defect",
+        "States that no simulator, emulator, or device evidence exists and marks rendering-dependent findings unconfirmed",
+        "Leaves files unchanged"
+      ]
+    },
+    {
+      "id": "rev-a11y-checkout",
+      "skill": "yb-frontend-reviewer",
+      "review_mode": "focused",
+      "prompt": "Review CheckoutForm.tsx and checkout.css for accessibility defects. Code only: no browser or screen reader is available. Report only; do not edit.",
+      "files": [
+        "fixtures/frontend/web/CheckoutForm.tsx",
+        "fixtures/frontend/web/checkout.css"
+      ],
+      "seeded_defects": [
+        "Card number has a placeholder and no label",
+        "The card number error is not associated with the field (no aria-describedby or aria-invalid) and is not announced",
+        "The CVC help icon button has no accessible name",
+        "The terms text is a span, not a label associated with the checkbox",
+        "Pay is a div with onClick: no button role, not focusable, not keyboard operable",
+        "Fine print #9CA3AF on #FFFFFF is 2.54:1, below 4.5:1 for 14px text",
+        "The icon button removes its focus outline with no replacement indicator"
+      ],
+      "traps": [
+        "The visually hidden label for Name on card is a valid accessible label",
+        "Input outline removal is replaced by a :focus-visible box-shadow",
+        "tabIndex -1 on the error summary heading is correct for programmatic focus",
+        "aria-hidden on the decorative SVG is correct; the defect is the button's missing name"
+      ],
+      "acceptance": [
+        "Reports at least 6 of the 7 seeded defects",
+        "Reports none of the four traps as a defect",
+        "States a computed contrast ratio for the fine print rather than an estimate",
+        "Does not claim keyboard, browser, or screen-reader testing and leaves files unchanged"
+      ]
+    },
+    {
+      "id": "qa-web-navigation-regression",
+      "skill": "yb-qa-engineer",
+      "prompt": "PR 412 changed SettingsTabs from links to local state. Requirement N1: the selected settings tab is reflected in the URL so refresh, back/forward, and shared links restore it. Write focused regression tests with the project's existing tooling and report readiness for N1. Dependencies and browsers are not installed; do not change product code.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/SettingsTabs.tsx"
+      ],
+      "acceptance": [
+        "Writes tests covering tab click updating the URL, back and forward restoring the previous tab, refresh, a direct link, and an invalid tab value",
+        "Identifies from source that clicks only set local state and calls N1 not met (source-supported, unexecuted)",
+        "Uses the installed Playwright or Vitest setup rather than adding a framework",
+        "Reports the tests as not run and names the unrun browser engines"
+      ]
+    },
+    {
+      "id": "qa-mobile-navigation-regression",
+      "skill": "yb-qa-engineer",
+      "prompt": "A navigation refactor (PR 88) landed. M1: opening an order from the list and pressing Android back or swiping back on iOS returns to the list. M2: the deep link parcel://orders/<id> opens that order; an unknown id shows 'Order not found' with a way back. Write focused regression tests with the project's existing tooling and report readiness for M1 and M2. Dependencies are not installed and no simulator, emulator, or device is available; do not change product code.",
+      "files": [
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/app.json",
+        "fixtures/frontend/expo-app/app/_layout.tsx",
+        "fixtures/frontend/expo-app/app/orders/index.tsx",
+        "fixtures/frontend/expo-app/app/orders/[id].tsx",
+        "fixtures/frontend/expo-app/ListRow.tsx"
+      ],
+      "acceptance": [
+        "Covers list to detail and back, deep-link cold start, and an unknown id",
+        "Identifies router.replace as breaking M1 and the unguarded undefined order as breaking M2, calling both not met from source",
+        "Uses the installed jest-expo and React Native Testing Library and names device-level end-to-end automation as an absent tool rather than silently adding one",
+        "Reports tests as not run and claims no simulator, emulator, or physical-device evidence"
+      ]
+    },
+    {
+      "id": "qa-risk-based-plan",
+      "skill": "yb-qa-engineer",
+      "prompt": "This release has three changes: (a) the PricingCard body padding fix (web), (b) a new reusable TextField used by the sign-up and settings forms (web), and (c) the mobile orders navigation refactor. Produce a risk-based test plan with a stopping point for each. Do not write or run tests yet.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/PricingCard.css",
+        "fixtures/frontend/expo-app/package.json",
+        "fixtures/frontend/expo-app/app/orders/index.tsx"
+      ],
+      "acceptance": [
+        "Scales depth by risk: a rendered check only for (a); component tests for states, validation, labels, and keyboard plus consuming forms for (b); back behavior, deep links, restoration, and both platforms for (c)",
+        "Builds on existing tooling (Playwright, Vitest, jest-expo, React Native Testing Library) and names missing device automation as a gap",
+        "Does not drop consequential navigation checks to save effort",
+        "States that this is a plan and nothing was run"
+      ]
+    },
+    {
+      "id": "qa-critical-transfer",
+      "skill": "yb-qa-engineer",
+      "prompt": "Write and run focused tests for transfer.mjs with node's built-in test runner. F1: the amount sent equals the entered amount in cents exactly for valid input with up to two decimals. F2: while a confirmation is pending, further confirms send no request. F3: retrying after a failed or timed-out confirmation reuses the idempotency key. F4: zero, negative, or malformed amounts are rejected before any request. Report readiness and do not change product code. No UI, payment provider, or device is available.",
+      "files": [
+        "fixtures/frontend/transfer.mjs"
+      ],
+      "acceptance": [
+        "Shows F1 failing with an exact counterexample (19.99 becomes 1998 cents)",
+        "Shows F2 sending a second request while pending, F3 issuing a new key on retry, and F4 accepting zero, negative, or NaN amounts",
+        "Calls the transfer not ready without editing product code or weakening expected outcomes",
+        "Reports actual test output and separates unavailable provider, UI, and device evidence"
+      ]
+    },
+    {
+      "id": "fe-design-authority-integration",
+      "skill": "yb-frontend-engineer",
+      "path": "standard",
+      "prompt": "Add the dark-theme status badge from DESIGN.md to both the web and mobile apps.",
+      "files": [
+        "fixtures/frontend/monorepo/package.json",
+        "fixtures/frontend/monorepo/DESIGN.md",
+        "fixtures/frontend/monorepo/packages/ui/tokens.ts",
+        "fixtures/frontend/monorepo/apps/web/package.json",
+        "fixtures/frontend/monorepo/apps/web/Badge.tsx",
+        "fixtures/frontend/monorepo/apps/mobile/package.json",
+        "fixtures/frontend/monorepo/apps/mobile/app.json",
+        "fixtures/frontend/monorepo/apps/mobile/Badge.tsx"
+      ],
+      "acceptance": [
+        "Treats the approved DESIGN.md and shared packages/ui/tokens.ts as the authority for both apps, loading a design-system skill only for a question they leave open (such as the contrast fix)",
+        "Does not describe the guidance or capabilities of a design-authority skill it could not read",
+        "Computes the approved dark pair (#6B7280 on #1F2937, about 3.0:1) and raises the conflict with 4.5:1 text contrast explicitly, neither shipping it silently nor silently replacing the approved color",
+        "Adds the dark values in packages/ui/tokens.ts and uses them in both Badge components without unrelated changes"
+      ]
+    },
+    {
+      "id": "fe-monorepo-platform-detection",
+      "skill": "yb-frontend-engineer",
+      "path": "fast",
+      "prompt": "In the Tally mobile app, the order total bar at the bottom of OrderSummary sits under the iPhone home indicator. Fix it.",
+      "files": [
+        "fixtures/frontend/monorepo/package.json",
+        "fixtures/frontend/monorepo/apps/web/package.json",
+        "fixtures/frontend/monorepo/apps/mobile/package.json",
+        "fixtures/frontend/monorepo/apps/mobile/app.json",
+        "fixtures/frontend/monorepo/apps/mobile/OrderSummary.tsx",
+        "fixtures/frontend/monorepo/packages/ui/tokens.ts"
+      ],
+      "acceptance": [
+        "Identifies apps/mobile as an Expo client targeting iOS and Android and scopes reading and changes to it",
+        "Adds the bottom safe-area inset once with the installed react-native-safe-area-context, without a new dependency",
+        "Does not consult the web design authority, edit apps/web or packages/ui, or audit the monorepo",
+        "States that the fix was not rendered on a simulator or device"
+      ]
+    },
+    {
+      "id": "fe-no-design-authority",
+      "skill": "yb-frontend-engineer",
+      "path": "fast",
+      "max_skill_references": 1,
+      "prompt": "After a failed save, the Save button on SettingsForm stays disabled. Fix it. Dependencies are not installed.",
+      "files": [
+        "fixtures/frontend/web/package.json",
+        "fixtures/frontend/web/SettingsForm.tsx"
+      ],
+      "acceptance": [
+        "Resets the pending state on failure (for example in finally) while keeping the typed value, the error announcement, and the duplicate-submit guard",
+        "Consults no design authority or platform routing and makes no visual change",
+        "Adds or specifies a focused failure-path test and reports that it was not run"
+      ]
     }
   ]
 }

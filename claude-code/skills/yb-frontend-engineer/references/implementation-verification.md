@@ -31,4 +31,4 @@ Use laboratory measurements for reproducible diagnosis and field data for real-u
 
 Choose the smallest set that can verify the change. Exercise actual user actions instead of implementation details; add regressions for meaningful defects. Do not change snapshot baselines solely to hide unexplained differences. Use mocks deliberately and disclose what integration remains untested.
 
-If browser access is absent, say so and separate code-supported conclusions from visual/interaction questions. Report genuine failures and blocked checks with the next useful verification step; do not mark them passed or abandon authorized work that remains possible.
+If browser or device access is absent, say so and separate code-supported conclusions from visual/interaction questions. Report genuine failures and blocked checks with the next useful verification step; do not mark them passed or abandon authorized work that remains possible.

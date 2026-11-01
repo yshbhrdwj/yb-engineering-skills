@@ -14,6 +14,10 @@ Exercise widths around actual layout transitions, zoom/text enlargement, long co
 
 Inspect supported locales for text expansion, date/number/unit formatting, bidirectional content, and directionality. Flag implementation constraints supported by evidence; do not claim a translation is wrong without language or domain knowledge. Test a screen reader or locale only when tooling and expertise permit, and state the limitation otherwise.
 
+## Visual precision
+
+Make visual findings measurable and locatable: element, state, width or device, observed value, expected token or criterion, and effect. Actionable: "Profile, 390 px: Save sits 4 px below the last field while sibling sections use the 16 px spacing token, so it reads as part of that field." "Card titles use 14/400 like body text; the scale's small heading is 16/600, so dense lists lose their hierarchy." "Error text #F87171 on #FFFFFF measures 2.8:1; WCAG 1.4.3 requires 4.5:1 at this size." Vague: "spacing feels off," "make it pop," "looks dated." A judgment that cannot be tied to an observed effect, token, or criterion is optional or omitted.
+
 ## Motion and visual stability
 
 Check whether motion clarifies state changes, respects reduced-motion settings, avoids obstructing input, and remains understandable when interrupted. Verify essential content and controls without relying on animation completion. Consider hover/focus/touch parity and flashing or distracting content where present.

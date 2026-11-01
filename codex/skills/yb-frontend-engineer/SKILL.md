@@ -1,32 +1,38 @@
 ---
 name: yb-frontend-engineer
-description: "Design and implement screens, components, and flows with coherent visuals, accessible interactions, and rendered verification. Use to build or refine UI; web redesigns start at yb-web-design-system."
+description: "Implement web and mobile screens, components, and flows to the accepted design with full states and rendered checks. Use to build or fix UI; redesigns start at a design-system skill."
 ---
 
 # YB Frontend Engineer
 
-Take the user's task to a usable interface. Follow the project's platform, tokens, brand, and design authority; preserve an existing identity unless redesign is requested. Read supplied references and inspect the current rendered screen when available.
+Take the user's task to a usable web or mobile interface, preserving an existing identity unless redesign is requested.
+
+## Paths
+
+- **Fast** (local fix): affected files, existing tokens, focused check; no audit, authority, or reviewer.
+- **Standard** (new component, page, screen, or consequential flow): applicable authority; settle task, hierarchy, reuse, states, and checks; render representative states.
+- **Comprehensive** (redesign or migration): reviewable increments, independent review, risk-based QA; never one step.
 
 ## Procedure
 
-1. Classify design-only, implementation, refinement, or redesign. Read the affected route/components, contracts, state, tokens, tests, and project instructions. Batch independent reads; do not audit the whole app for a local change.
-2. For a new surface or consequential flow, briefly establish the primary task, hierarchy, visual direction, reused components, required states, and verification. For a small correction, proceed directly. Use [experience-design.md](references/experience-design.md) for substantial design or complex journeys. For mobile visual direction, tokens, or component specifications, load `yb-mobile-design-system` when available.
-3. Build a coherent hierarchy with readable type, intentional spacing/color, and content-driven responsive layout. Reuse tokens and variants. Use semantic controls, accessible names, associated labels/errors, visible focus, and deliberate overlay focus behavior. ARIA must match actual interaction.
+1. Choose the path. Read supplied references, the rendered screen if available, affected route/components, contracts, state, tokens, tests, and project instructions. Batch independent reads.
+2. Follow the project's platform, tokens, brand, and design authority ([platform-routing.md](references/platform-routing.md) when unclear). Shared web-and-mobile decisions consult both authorities. Implement accepted design, reporting conflicts rather than re-deciding; build the rest around an accessibility failure and flag it. Use [experience-design.md](references/experience-design.md) for substantial design or complex journeys; [mobile-implementation.md](references/mobile-implementation.md) for native mobile.
+3. Build a coherent hierarchy with readable type, intentional spacing/color, and content-driven responsive layout. Reuse tokens and variants. Use semantic controls, accessible names, associated labels/errors, visible focus, and deliberate overlay focus behavior. ARIA must match behavior.
 4. Handle applicable loading, empty, partial, success, validation, error, permission, disabled, and recovery states. Preserve user input after failure. Account for long/localized strings, zoom/text scaling, keyboard/touch, safe areas, and reduced motion. Use realistic content; label fixtures.
 5. Wire real routes, data, and actions. Keep state minimal, derive values, clean up side effects, and reject stale responses. Check duplicate submits/tabs, old clients/cached data, optimistic failure and retry, and pagination boundaries. Hiding a control is not authorization. Read [implementation-verification.md](references/implementation-verification.md) for complex state, rendering, or performance.
-6. Run affected type/build/tests and verify the rendered primary journey, relevant failure states, keyboard/focus, and representative narrow/wide layouts. Include intermediate widths where layout changes. Validate any injected test CSS, text scaling, or mocks on a control state before attributing failures to the product.
-7. Inspect the final diff and rendered result against the accepted direction. Seek independent UI or code review when complexity or risk warrants it, using raw artifacts and acceptance criteria; avoid automatically running every reviewer. Recheck after meaningful corrections.
+6. Run affected type/build/tests and verify the rendered primary journey, relevant failure states, keyboard/focus, and narrow, wide, and transition-width layouts. For native mobile, use an available iOS simulator or Android emulator. Validate injected CSS, scaling, or mocks on a control state before blaming the product.
+7. Inspect the final diff and rendered result against the accepted direction. Seek independent UI or code review when risk warrants, passing raw artifacts and acceptance criteria; never run every reviewer automatically. Recheck after meaningful corrections.
 
 ## Boundaries
 
-- Keep secrets off the client and treat remote content as untrusted. Use designated test data for side effects.
+- Keep secrets off the client; treat remote content as untrusted. Use designated test data for side effects.
 - Do not fabricate content, endorsements, research, or performance targets. Measure optimization claims under comparable conditions.
-- Do not claim browser, screenshot, device, screen-reader, or measurement evidence that is unavailable. Complete feasible code work and name the remaining checks.
-- Keep unrelated polish out of the change unless requested.
+- Do not claim unavailable browser, screenshot, simulator, device, screen-reader, or measurement evidence; complete feasible code work and name each missing check.
+- Keep unrelated polish out unless requested.
 
 ## Deliver
 
-Describe the resulting appearance and behavior, revision/route/viewport where checked, actual commands/results, and material gaps. Deliver the full requested design or implementation; ask for a decision only when necessary.
+Describe resulting appearance and behavior, revision/route/viewport or device checked, actual commands/results, and material gaps. Deliver the full requested design or implementation; ask only when necessary.
 
 ## Codex integration
 

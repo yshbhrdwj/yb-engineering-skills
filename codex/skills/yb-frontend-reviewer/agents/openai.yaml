@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Frontend Reviewer"
-  short_description: "Review UI behavior and accessibility with evidence"
+  short_description: "Independently review web and mobile UI with evidence"
   default_prompt: "Use $yb-frontend-reviewer to review this interface without editing and distinguish observed defects from unverified concerns."

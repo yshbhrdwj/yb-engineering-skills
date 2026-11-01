@@ -11,12 +11,12 @@ Twelve focused skills for **Claude Code and Codex**. Small changes take a short 
 | [`yb-solution-architect`](codex/skills/yb-solution-architect/SKILL.md) | Contracts, data, consequential decisions, failure handling and delivery plans |
 | [`yb-software-engineer`](codex/skills/yb-software-engineer/SKILL.md) | Features, fixes and refactors with focused verification |
 | [`yb-web-design-system`](codex/skills/yb-web-design-system/SKILL.md) | Web visual direction, tokens, component contracts, responsive and accessibility design rules |
-| [`yb-frontend-engineer`](codex/skills/yb-frontend-engineer/SKILL.md) | Interfaces, complete interaction states and rendered verification |
+| [`yb-frontend-engineer`](codex/skills/yb-frontend-engineer/SKILL.md) | Web and mobile interfaces built to the accepted design, complete states and rendered verification |
 | [`yb-mobile-design-system`](codex/skills/yb-mobile-design-system/SKILL.md) | Mobile visual direction, tokens, component specs, platform patterns and design audits |
 | [`yb-code-reviewer`](codex/skills/yb-code-reviewer/SKILL.md) | Behavior, concurrency, performance and consequential design defects |
-| [`yb-frontend-reviewer`](codex/skills/yb-frontend-reviewer/SKILL.md) | Observed UX, visual, accessibility and interaction defects |
+| [`yb-frontend-reviewer`](codex/skills/yb-frontend-reviewer/SKILL.md) | Independent web and mobile UX, visual, accessibility and native-interaction findings |
 | [`yb-security-privacy`](codex/skills/yb-security-privacy/SKILL.md) | Demonstrable abuse paths, authorization and personal-data lifecycle |
-| [`yb-qa-engineer`](codex/skills/yb-qa-engineer/SKILL.md) | Risk-based tests, requirement coverage and readiness evidence |
+| [`yb-qa-engineer`](codex/skills/yb-qa-engineer/SKILL.md) | Risk-based web, mobile and service tests, requirement coverage and readiness evidence |
 | [`yb-merge-pr`](codex/skills/yb-merge-pr/SKILL.md) | Authorized PR merges with review, CI and exact-head checks |
 | [`yb-release-operator`](codex/skills/yb-release-operator/SKILL.md) | Authorized releases, incidents, recovery and maintenance |
 

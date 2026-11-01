@@ -19,7 +19,7 @@ Use one role for a small task. Add specialists only where they resolve a distinc
 
 In Codex, mention `$yb-software-engineer`. In Claude Code, invoke `/yb-software-engineer`. Supply the target, intended behavior, known constraints and relevant evidence. A reviewer in Claude runs in a fresh subagent (Explore for code/security, general-purpose for frontend); include requirements and exact target in the invocation because it cannot see the author's conversation.
 
-Web design routing: "I don't like my website, redesign it" starts with `yb-web-design-system`, which records the design system and hands it to `yb-frontend-engineer`; review and QA follow by scope and risk. "Find UI/UX issues in my app" starts with `yb-frontend-reviewer`; the design skill joins only if a new direction is needed. "Fix the spacing on this button" goes to `yb-frontend-engineer` with existing tokens.
+Web design routing: "I don't like my website, redesign it" starts with `yb-web-design-system`, which records the design system and hands it to `yb-frontend-engineer`; review and QA follow by scope and risk. "Find UI/UX issues in my app" starts with `yb-frontend-reviewer`; the design skill joins only if a new direction is needed. "Fix the spacing on this button" goes to `yb-frontend-engineer` with existing tokens. Mobile work and the other frontend scenarios are in the [frontend routing table](SDLC-WORKFLOW.md#frontend-routing).
 
 For a routine fix, the engineer inspects the affected path and callers, uses the smallest complete solution, and runs targeted checks. Shared state, retries, authorization and migrations warrant a short design and focused independent review. A requested full document remains complete; compact chat reporting does not limit the deliverable.
 

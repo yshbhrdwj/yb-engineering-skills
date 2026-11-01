@@ -1,0 +1,16 @@
+/* Ledgerly design tokens (synthetic fixture). Components use these variables only. */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --radius-md: 8px;
+  --color-text: #1F2937;
+  --color-muted: #4B5563;
+  --color-border: #D1D5DB;
+  --color-surface: #FFFFFF;
+  --color-accent: #1D4ED8;
+  --color-danger: #B91C1C;
+  --font-body: 16px/1.5 system-ui, sans-serif;
+}

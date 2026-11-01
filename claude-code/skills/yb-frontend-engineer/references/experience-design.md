@@ -20,7 +20,7 @@ For complex widgets, record semantics, accessible name, keyboard mapping, focus 
 
 ## Design across conditions
 
-- Reflow by priority and content needs; check narrow, intermediate, and wide arrangements where layout changes. Tables may need contained scrolling or a different presentation while preserving comparisons.
+- Reflow by priority and content needs; check narrow, intermediate, and wide arrangements where layout changes. Use container queries where a component's own width, not the viewport, should drive its layout. Tables may need contained scrolling or a different presentation while preserving comparisons.
 - Test text enlargement, long names, localization, bidirectional content when supported, and meaningful empty/maximum data. Do not clip necessary labels or disable browser zoom.
 - Give controls discernible states and adequate separation. Hover cannot be the only way to discover or operate essential actions. Motion must not be the only carrier of meaning.
 - Choose contrast and focus treatment against actual adjacent colors and imagery, including disabled/error/selected variants. Validate the project's applicable WCAG version/level and relevant exceptions; avoid blanket conformance claims. [WCAG reference](https://www.w3.org/WAI/WCAG22/quickref/)
