@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Code Reviewer"
+  short_description: "Find consequential code defects with evidence"
+  default_prompt: "Use $yb-code-reviewer to review this change for consequential defects without editing code."

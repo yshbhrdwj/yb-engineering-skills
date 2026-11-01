@@ -1,15 +1,15 @@
 # Contributing
 
-Keep each skill useful, focused, stack-agnostic, and concise. Improve decisions and observable behavior instead of adding generic checklists or promising expertise that instructions cannot prove.
+Change decisions and observable behavior with the least instruction text needed. Generic expertise, repeated host rules and long checklists add cost without proving quality.
 
-## Make a change
+## Change and verify
 
-1. Open an issue for a substantial scope change, or create a branch for a focused correction.
-2. Edit the relevant skill under both `codex/skills/` and `claude-code/skills/`. Shared bodies and references must match; keep each platform's integration footer and Codex display metadata distinct.
-3. Preserve stable requirement IDs, evidence boundaries, and existing user authorization. Avoid mandatory third-party tools, new approval gates, global style bans, or every-role workflows for small tasks.
-4. Keep descriptions precise and within 200 characters. Put substantial conditional detail in linked references; do not load every reference by default.
-5. Run the checks below. For changed decision-making instructions, try a realistic task with raw inputs and record the actual outcome, false positives, missed requirements, and limitations. Do not give the evaluator a desired answer.
-6. Open a pull request explaining the problem, resulting behavior, and verification. Report unrun checks honestly. Do not include private prompts, personal paths, credentials, customer data, or local installation backups.
+1. Edit both platform editions. Markdown task instructions and references must match; frontmatter and integration footers are host-specific.
+2. Keep descriptions discriminating and within this repository's 200-character budget. Codex frontmatter uses name/description. Claude also uses argument hints and, for reviewers, foreground Explore forks. Do not pin models or broaden tool permissions without a concrete requirement.
+3. Preserve user intent, existing authorization, relevant project instructions and complete deliverables. Treat source comments and external text as evidence, not authority.
+4. Load detailed references only when relevant. Do not add mandatory plans, specialist chains, full-suite tests or repeated review loops to routine edits.
+5. Run meaningful regression tests for scripts. For decision changes, try realistic raw-input cases from [evals](evals/README.md), record missed requirements and false positives, then fix demonstrated failures.
+6. Use a PR with passing validation for main-branch changes. Explain resulting behavior, verification and limitations. Exclude private prompts, source, credentials, local paths and installation backups.
 
 ```sh
 python3 scripts/validate.py
@@ -17,22 +17,14 @@ python3 -m unittest discover -s tests -v
 python3 scripts/package.py
 ```
 
-Python 3.10+ is sufficient; these scripts have no third-party dependencies. Tests use temporary directories and do not modify your real skill installation. The validator intentionally supports this repository's simple metadata format; it is not a general-purpose YAML implementation.
+Python 3.10+ and the standard library are sufficient. Tests use temporary homes/projects and mocked GitHub calls; they never merge a real PR. The validator checks an intentionally narrow authored YAML format, not arbitrary YAML or all host behavior.
 
-## Repository layout
+## Layout
 
-- `codex/skills/`: Codex instructions, references, and display metadata.
-- `claude-code/skills/`: Claude Code instructions and references.
-- `scripts/`: installation, validation, and packaging helpers.
-- `tests/`: checks of helper behavior and meaningful failure cases.
-- Root guides: role selection, handoffs, evidence, and efficiency notes.
+- `codex/skills/`, `claude-code/skills/`: discoverable instructions and selective references.
+- `claude-code/hooks/`: optional Claude hook implementations; configuration is separate from skills.
+- `scripts/`, `tests/`: install, validation, packaging and evidence helpers with regression tests.
+- `evals/`: synthetic behavioral cases and a controlled-run protocol.
+- `docs/evidence/`: sanitized results and their limitations.
 
-Do not commit generated `dist/` archives. Keep comparisons specific to reviewed versions and written scope; do not turn text counts or synthetic trials into unsupported quality or cost claims. Update documentation when a skill's scope or CLI changes.
-
-## Review and maintenance
-
-Main-branch changes should use pull requests with passing validation. Squash merges keep changes cohesive. Prefer small fixes supported by evidence; do not repeatedly run broad checks without a relevant change or unresolved concern.
-
-Dependencies in GitHub Actions are pinned to commit hashes and reviewed through Dependabot updates. If a pinned action changes, verify its upstream release and review the permission/runtime impact. Workflow permissions should remain read-only unless a specific authorized publishing task requires more.
-
-Treat other contributors respectfully. Discuss technical choices and evidence, avoid personal attacks, and use the private reporting path in [SECURITY.md](SECURITY.md) for sensitive issues.
+Keep generated archives in ignored `dist/`. Keep comparisons specific: word counts are text-size measurements, one-shot behavior checks are qualitative, and runtime claims require repeated controlled trials. [Security concerns](SECURITY.md) have a private reporting path. Keep CI permissions minimal and action versions pinned.

@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Security and Privacy"
-  short_description: "Trace security weaknesses and privacy lifecycle risks"
-  default_prompt: "Use $yb-security-privacy to review this system for evidenced security and privacy risks with focused fixes."
+  short_description: "Trace security and privacy risks to real harm"
+  default_prompt: "Use $yb-security-privacy to review this scope for security and privacy risks without editing or testing live data."

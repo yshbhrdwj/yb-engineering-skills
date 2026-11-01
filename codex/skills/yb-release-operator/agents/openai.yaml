@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Release Operator"
-  short_description: "Plan releases, verify deployments, and operate systems"
-  default_prompt: "Use $yb-release-operator to assess this release and prepare its rollout, verification, recovery, and operational handoff."
+  short_description: "Operate releases and recovery with clear evidence"
+  default_prompt: "Use $yb-release-operator to assess this operational task and execute only the already-authorized actions with verification."

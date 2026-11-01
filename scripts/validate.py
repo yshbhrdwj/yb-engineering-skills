@@ -2,7 +2,7 @@
 """Validate this repository's authored skill format using only the standard library.
 
 This is deliberately not a general YAML or CommonMark parser. Frontmatter uses
-flat plain/JSON-quoted strings; openai.yaml uses one interface mapping with three
+flat plain/JSON-quoted strings and explicitly typed Claude fields; openai.yaml uses one interface mapping with three
 JSON-quoted strings. Markdown checks cover inline/reference links and ordinary
 GitHub heading anchors, ignoring fenced and inline code. Remote URLs are not fetched.
 """
@@ -19,11 +19,13 @@ from urllib.parse import unquote, urlsplit
 
 
 EXPECTED_NAMES = frozenset({
-    "yb-code-correctness-reviewer", "yb-code-design-reviewer",
+    "yb-code-reviewer", "yb-merge-pr",
     "yb-frontend-engineer", "yb-frontend-reviewer", "yb-product-strategist",
     "yb-qa-engineer", "yb-release-operator", "yb-security-privacy",
     "yb-software-engineer", "yb-solution-architect",
 })
+REVIEWERS = {"yb-code-reviewer", "yb-frontend-reviewer", "yb-security-privacy"}
+CLAUDE_FIELDS = {"argument-hint", "context", "agent", "background"}
 FOOTERS = {
     "codex": (
         "## Codex integration\n\n"
@@ -162,7 +164,7 @@ class Validator:
                         files[relative] = text
         return files
 
-    def frontmatter(self, path: Path, text: str, name: str) -> None:
+    def frontmatter(self, path: Path, text: str, name: str, platform: str) -> None:
         lines = text.splitlines()
         if not lines or lines[0] != "---" or "---" not in lines[1:]:
             self.error(path, "expected opening/closing --- frontmatter delimiters")
@@ -177,6 +179,12 @@ class Validator:
             key, value = match.groups()
             if key in fields:
                 self.error(path, f"line {number}: duplicate frontmatter field {key!r}")
+            if platform == "claude-code" and key == "background":
+                if value not in {"true", "false"}:
+                    self.error(path, f"line {number}: background must be an unquoted boolean")
+                else:
+                    fields[key] = value == "true"
+                continue
             if value.startswith('"'):
                 try:
                     value = json.loads(value)
@@ -195,8 +203,17 @@ class Validator:
                 self.error(path, f"line {number}: {key} must be a nonempty single-line string")
                 continue
             fields[key] = value
-        if set(fields) != {"name", "description"}:
-            self.error(path, "frontmatter must contain exactly name and description in this authored format")
+        required = {"name", "description"}
+        allowed = required | (CLAUDE_FIELDS if platform == "claude-code" else set())
+        if not required <= fields.keys() or fields.keys() - allowed:
+            self.error(path, f"frontmatter requires name and description; allowed {platform} fields: {', '.join(sorted(allowed))}")
+        if platform == "claude-code":
+            if name in REVIEWERS:
+                if any(fields.get(key) != value for key, value in
+                       {"context": "fork", "agent": "Explore", "background": False}.items()):
+                    self.error(path, "reviewers require context: fork, agent: Explore, background: false")
+            elif fields.keys() & {"context", "agent", "background"}:
+                self.error(path, "forked reviewer fields belong only on reviewer skills")
         if fields.get("name") != name or not re.fullmatch(r"yb-[a-z0-9]+(?:-[a-z0-9]+)*", fields.get("name", "")):
             self.error(path, f"frontmatter name must match the skill directory: {name}")
         if len(fields.get("description", "")) > 200:
@@ -210,7 +227,13 @@ class Validator:
         if text.count(heading) != 1 or not text.rstrip().endswith("\n\n" + footer):
             self.error(path, f"expected exactly one complete {heading[3:]} footer at the end")
             return None
-        core = text.rstrip()[:-len(footer)].rstrip()
+        # Runtime frontmatter is deliberately host-specific; compare the actual
+        # instructions, not Claude's fork/argument configuration with Codex's.
+        lines = text.splitlines()
+        if not lines or lines[0] != "---" or "---" not in lines[1:]:
+            return None
+        body = "\n".join(lines[lines.index("---", 1) + 1:]).strip()
+        core = body[:-len(footer)].rstrip()
         for other, value in FOOTERS.items():
             if other != platform and value.splitlines()[0] in core:
                 self.error(path, f"contains the wrong platform's {other} integration section")
@@ -275,7 +298,7 @@ class Validator:
                 if "SKILL.md" not in files:
                     self.error(folder / "SKILL.md", "missing readable skill entrypoint")
                 else:
-                    self.frontmatter(folder / "SKILL.md", files["SKILL.md"], name)
+                    self.frontmatter(folder / "SKILL.md", files["SKILL.md"], name, platform)
                     cores[platform, name] = self.shared_core(folder / "SKILL.md", files["SKILL.md"], platform)
                 if platform == "codex":
                     if "agents/openai.yaml" not in files:
@@ -288,6 +311,13 @@ class Validator:
                 continue
             if cores.get(left) is not None and cores.get(right) is not None and cores[left] != cores[right]:
                 self.error(self.root / "claude-code/skills" / name / "SKILL.md", "shared core differs from Codex; synchronize content before platform footers")
+            # Description is discovery guidance and must also agree, even though
+            # other frontmatter differs between hosts.
+            def description(files):
+                return next((line for line in files.get("SKILL.md", "").splitlines()
+                             if line.startswith("description: ")), None)
+            if description(packages[left]) != description(packages[right]):
+                self.error(self.root / "claude-code/skills" / name / "SKILL.md", "description differs from Codex")
             a = {k: v for k, v in packages[left].items() if k.startswith("references/")}
             b = {k: v for k, v in packages[right].items() if k.startswith("references/")}
             for relative in sorted(a.keys() | b.keys()):

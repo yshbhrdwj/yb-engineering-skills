@@ -199,6 +199,51 @@ class InstallTests(unittest.TestCase):
         self.assertIn("File/directory conflict", result.stderr)
         self.assertFalse(self.skill(name="yb-second").exists())
 
+    def add_migration_fixture(self):
+        for target in ("codex", "claude-code"):
+            source = self.repo / target / "skills" / "yb-code-reviewer"
+            source.mkdir()
+            (source / "SKILL.md").write_text("Unified code review")
+        for platform in (".agents", ".claude"):
+            for name in ("yb-code-correctness-reviewer", "yb-code-design-reviewer"):
+                old = self.skill(platform, name)
+                old.mkdir(parents=True)
+                (old / "SKILL.md").write_text("Local old instructions")
+                (old / "personal-notes.txt").write_text("Preserve in backup")
+
+    def test_migration_backs_up_retired_skills_before_removing_them(self):
+        self.add_migration_fixture()
+        self.run_installer("--target", "both", "--update", "--migrate")
+        backups = list((self.home / ".yb-engineering-skills-backups").iterdir())
+        self.assertEqual(len(backups), 1)
+        for target, platform in (("codex", ".agents"), ("claude-code", ".claude")):
+            self.assertTrue(self.skill(platform, "yb-code-reviewer").exists())
+            for name in ("yb-code-correctness-reviewer", "yb-code-design-reviewer"):
+                self.assertFalse(self.skill(platform, name).exists())
+                saved = backups[0] / target / name
+                self.assertEqual((saved / "SKILL.md").read_text(), "Local old instructions")
+                self.assertEqual((saved / "personal-notes.txt").read_text(), "Preserve in backup")
+
+    def test_migration_is_explicit_and_dry_run_does_not_remove_anything(self):
+        self.add_migration_fixture()
+        self.run_installer("--target", "both", "--migrate", success=False)
+        self.run_installer("--target", "both", "--update", "--migrate", "--dry-run")
+        self.assertTrue(self.skill(name="yb-code-correctness-reviewer").exists())
+        self.assertFalse((self.home / ".yb-engineering-skills-backups").exists())
+        self.run_installer("--target", "both", "--update")
+        self.assertTrue(self.skill(name="yb-code-correctness-reviewer").exists())
+
+    def test_retired_skill_symlink_blocks_entire_migration_before_writes(self):
+        self.add_migration_fixture()
+        old = self.skill(name="yb-code-correctness-reviewer")
+        shutil.rmtree(old)
+        outside = self.root / "outside"
+        outside.mkdir()
+        old.symlink_to(outside, target_is_directory=True)
+        self.run_installer("--target", "both", "--update", "--migrate", success=False)
+        self.assertFalse(self.skill(name="yb-code-reviewer").exists())
+        self.assertEqual(list(outside.iterdir()), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "kind": "qualitative-forward-check",
+  "case_count": 10,
+  "assertions_passed": 40,
+  "assertions_total": 40,
+  "configuration": {
+    "runner": "one independent Codex subagent, sequential cases",
+    "invocation": "manual skill loading",
+    "model": "inherited; not independently pinned",
+    "effort": "inherited; not independently pinned",
+    "rubric_hidden_from_runner": true,
+    "baseline": null,
+    "native_per_role_matrix": false
+  },
+  "cases": [
+    {
+      "id": "product-manual-first",
+      "skill": "yb-product-strategist",
+      "edition_loaded": "codex",
+      "skill_sha256": "2149910abb8df0eccab4534cde0439867ead0f58b0de79ca9105e76183224889",
+      "expectations": [
+        {
+          "text": "Compares a plausible manual or existing-tool option with a software option",
+          "passed": true
+        },
+        {
+          "text": "Labels unprovided adoption, cost, and revenue assumptions",
+          "passed": true
+        },
+        {
+          "text": "Proposes a test with observable outcome and no invented interviews",
+          "passed": true
+        },
+        {
+          "text": "Does not implement or send messages",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "architecture-credit-transfer",
+      "skill": "yb-solution-architect",
+      "edition_loaded": "claude-code",
+      "skill_sha256": "967624dbebb7f42cef818afac749533edccf542d5f0b9d25dfd6b3249c6ab76d",
+      "expectations": [
+        {
+          "text": "Defines atomic debit and credit with concurrency control",
+          "passed": true
+        },
+        {
+          "text": "Defines idempotency for retries and ambiguous timeouts",
+          "passed": true
+        },
+        {
+          "text": "Covers simultaneous opposing transfers without inconsistent balances",
+          "passed": true
+        },
+        {
+          "text": "Preserves account IDs and separates proposed tests from completed results",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "engineer-json-option",
+      "skill": "yb-software-engineer",
+      "edition_loaded": "codex",
+      "skill_sha256": "2e5175f7dce9034fe4e302c87007962a31563a991dcc63f987aeb300da132008",
+      "expectations": [
+        {
+          "text": "Default output remains exactly apples: 2 followed by pears: 3 on separate lines",
+          "passed": true
+        },
+        {
+          "text": "--json output parses to {apples: 2, pears: 3}",
+          "passed": true
+        },
+        {
+          "text": "Runs a meaningful test of both CLI paths",
+          "passed": true
+        },
+        {
+          "text": "Adds no dependency or unrelated feature",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "frontend-preserve-failed-input",
+      "skill": "yb-frontend-engineer",
+      "edition_loaded": "claude-code",
+      "skill_sha256": "d2013288ef4c5c485bbcdaa85a68957b14b1e93565a28cf3f31f3f40efbffc47",
+      "expectations": [
+        {
+          "text": "Checks HTTP response status and catches network errors",
+          "passed": true
+        },
+        {
+          "text": "Retains input on failed HTTP and network paths",
+          "passed": true
+        },
+        {
+          "text": "Prevents duplicate pending submissions and restores ability to retry",
+          "passed": true
+        },
+        {
+          "text": "Uses semantic labeled controls and reports browser/backend limits honestly",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "review-race-and-clean-control",
+      "skill": "yb-code-reviewer",
+      "edition_loaded": "codex",
+      "skill_sha256": "b68c64c70e090d54d58827b2f5e0908a312a6e812d2879ed87df09584e554a92",
+      "expectations": [
+        {
+          "text": "Shows a concrete simultaneous-reservation interleaving that oversells stock",
+          "passed": true
+        },
+        {
+          "text": "Identifies invoice lookup authorization gap with cross-account access path",
+          "passed": true
+        },
+        {
+          "text": "Does not report clamp as defective or invent missing requirements",
+          "passed": true
+        },
+        {
+          "text": "Leaves files unchanged and does not claim performance measurement",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "frontend-code-only-boundary",
+      "skill": "yb-frontend-reviewer",
+      "edition_loaded": "claude-code",
+      "skill_sha256": "4dad413e1f3b779a0f25505395dd0cb2b56f9558cfd879068e1780fef1f43684",
+      "expectations": [
+        {
+          "text": "Reports success and erased input on HTTP error",
+          "passed": true
+        },
+        {
+          "text": "Reports non-semantic Save control and missing persistent label",
+          "passed": true
+        },
+        {
+          "text": "Does not claim rendered viewport, keyboard, or screen-reader tests",
+          "passed": true
+        },
+        {
+          "text": "Leaves files unchanged and avoids unsupported visual judgments",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "qa-exact-boundary",
+      "skill": "yb-qa-engineer",
+      "edition_loaded": "codex",
+      "skill_sha256": "61043d685a5402b4a7e3a5c333f518c087c65796c2d0d0cc3d8045cfe5a4a1c7",
+      "expectations": [
+        {
+          "text": "Exercises values below, exactly at, and above 120",
+          "passed": true
+        },
+        {
+          "text": "Shows the exact-boundary failure without altering product code or weakening expected outcome",
+          "passed": true
+        },
+        {
+          "text": "Calls R1 not met and separates unavailable integration/UI evidence",
+          "passed": true
+        },
+        {
+          "text": "Reports actual test results rather than only a proposed plan",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "security-object-ownership",
+      "skill": "yb-security-privacy",
+      "edition_loaded": "claude-code",
+      "skill_sha256": "c525876e675fcf2a681bbd3cc59d109c3d3ab94dd38cdc14fb4613b1841381cb",
+      "expectations": [
+        {
+          "text": "Demonstrates authenticated cross-account invoice access",
+          "passed": true
+        },
+        {
+          "text": "Distinguishes login from object ownership authorization",
+          "passed": true
+        },
+        {
+          "text": "Recommends the ownership check at the shared access boundary with legitimate and denied tests",
+          "passed": true
+        },
+        {
+          "text": "Does not invent a CVE, legal duty, live exploit result, or production exposure fact",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "release-artifact-mismatch",
+      "skill": "yb-release-operator",
+      "edition_loaded": "codex",
+      "skill_sha256": "45d174754161fe1e5b47c10dff69c7a6acf9f88f1e740581e16431f6ff0f886b",
+      "expectations": [
+        {
+          "text": "Blocks readiness on artifact mismatch",
+          "passed": true
+        },
+        {
+          "text": "Explains schema-incompatible rollback and forward repair or compatible migration options",
+          "passed": true
+        },
+        {
+          "text": "Treats missing health criteria and restore evidence as gaps",
+          "passed": true
+        },
+        {
+          "text": "Does not deploy or invent authorization, metrics, or successful recovery",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    },
+    {
+      "id": "merge-negative-evidence",
+      "skill": "yb-merge-pr",
+      "edition_loaded": "claude-code",
+      "skill_sha256": "451ecaf0e91f50f767d964404e62d42e79c218d9ff56f336fa9e538f8094d924",
+      "expectations": [
+        {
+          "text": "Does not treat stale approval, negative review, or issue comment as approval",
+          "passed": true
+        },
+        {
+          "text": "Blocks for unresolved thread and pending required check",
+          "passed": true
+        },
+        {
+          "text": "Requires review of exact current head by an allowed reviewer",
+          "passed": true
+        },
+        {
+          "text": "Would pin the eventual merge command to the verified head and performs no merge now",
+          "passed": true
+        }
+      ],
+      "evidence": "Saved response, source artifacts, and command-result record inspected; see the accompanying forward-check report."
+    }
+  ]
+}

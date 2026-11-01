@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Merge PR"
+  short_description: "Land reviewed PRs against the verified head"
+  default_prompt: "Use $yb-merge-pr to verify this pull request and merge it only within my existing authorization."

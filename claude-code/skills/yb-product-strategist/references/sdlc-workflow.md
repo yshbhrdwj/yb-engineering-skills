@@ -16,8 +16,8 @@ Carry artifact version/source, outcome/scope, stable requirement IDs, accepted/p
 | Design/build frontend | `yb-frontend-engineer` | Journeys/brand/contracts → visual system, interactive UI, responsive/accessibility evidence |
 | Review frontend | `yb-frontend-reviewer` | Rendered UI/code/criteria → grounded UX, visual, accessibility, interaction findings |
 | Verify quality | `yb-qa-engineer` | Requirements/build/risks → test evidence, defects, UX/NFR coverage, residual gaps |
-| Review design | `yb-code-design-reviewer` | Diff/design → maintainability and architectural findings |
-| Review correctness | `yb-code-correctness-reviewer` | Diff/workload → behavior, algorithm, concurrency, failure findings |
+| Review code | `yb-code-reviewer` | Diff/contracts/workload → behavior, concurrency, performance, and consequential design findings |
+| Land reviewed changes | `yb-merge-pr` | Exact head/reviews/checks → authorized merge or precise blocker |
 | Assess trust/data risks | `yb-security-privacy` | Relevant lifecycle artifacts → threat/privacy findings and remediation evidence |
 | Release and operate | `yb-release-operator` | Candidate/evidence → rollout/recovery, executed checks if authorized, operational record |
 | Learn, maintain, retire | Product + operations + affected specialists | Outcomes/incidents/cost → revised brief, maintenance, deprecation/export/deletion plan |

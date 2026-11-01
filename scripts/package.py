@@ -5,8 +5,8 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-GUIDES = ('SDLC-WORKFLOW.md', 'VALIDATION.md', 'TOKEN-EFFICIENCY.md',
-          'PONYTAIL-COMPARISON.md')
+GUIDES = ('START-HERE.md', 'SDLC-WORKFLOW.md', 'VALIDATION.md',
+          'TOKEN-EFFICIENCY.md', 'PONYTAIL-COMPARISON.md')
 
 
 def main():
@@ -19,10 +19,30 @@ def main():
         target = output / f'{platform}-engineering-skills.zip'
         with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as bundle:
             for path in sorted(source.rglob('*')):
-                if path.is_file():
+                if path.is_symlink():
+                    raise RuntimeError(f'Refusing symlink in bundle: {path.relative_to(ROOT)}')
+                if path.is_file() and '__pycache__' not in path.parts and path.name != '.DS_Store':
                     bundle.write(path, (prefix / path.relative_to(source)).as_posix())
             for name in GUIDES:
-                bundle.write(ROOT / name, (prefix / name).as_posix())
+                content = (ROOT / name).read_text(encoding='utf-8')
+                if name == 'START-HERE.md':
+                    content = content.replace(
+                        '[Claude Code](claude-code/README.md) and [Codex](codex/README.md) guides',
+                        '[platform README](README.md)')
+                    hook_guide = ('HOOKS.md' if platform == 'claude-code' else
+                                  'https://github.com/yshbhrdwj/yb-engineering-skills/blob/main/claude-code/HOOKS.md')
+                    content = content.replace('](claude-code/HOOKS.md)', f']({hook_guide})')
+                bundle.writestr((prefix / name).as_posix(), content)
+            for directory in ('docs/evidence', 'evals'):
+                for path in sorted((ROOT / directory).rglob('*')):
+                    if path.is_file() and '__pycache__' not in path.parts:
+                        bundle.write(path, (prefix / path.relative_to(ROOT)).as_posix())
+            helpers = ['summarize_evals.py']
+            if platform == 'claude-code':
+                helpers.append('install_hooks.py')
+            for helper in helpers:
+                bundle.write(ROOT / 'scripts' / helper,
+                             (prefix / 'scripts' / helper).as_posix())
             if (ROOT / 'LICENSE').is_file():
                 bundle.write(ROOT / 'LICENSE', (prefix / 'LICENSE').as_posix())
         with zipfile.ZipFile(target) as bundle:
