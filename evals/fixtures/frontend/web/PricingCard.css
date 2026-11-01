@@ -1,0 +1,19 @@
+.pricing-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.pricing-card__header {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.pricing-card__body {
+  padding: 2px;
+  color: var(--color-muted);
+}
+
+.pricing-card__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}

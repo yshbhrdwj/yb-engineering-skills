@@ -2,6 +2,19 @@
 
 Read only the sections relevant to the requested validation and identified risks.
 
+## Risk ladder
+
+Scale depth to harm and exposure, not diff size. Escalate a row when exposure or failure history is higher; never drop a consequential check to save time.
+
+| Change | Typical depth |
+| --- | --- |
+| Spacing or color fix with existing tokens | Rendered check of the affected state; existing visual-regression suite if present; no new tests |
+| Reusable form component | Component tests for states, validation, labels, and keyboard; a few consuming screens |
+| Dashboard screen | Loading, empty, partial, error, and large data; filters and permissions; responsive layouts; one end-to-end journey |
+| Navigation rewrite | Every entry route and deep link, back behavior, state restoration, and authentication redirects |
+| Complete redesign | Per slice, affected journeys and visual regression on shared components; then the accessibility and browser/device matrix |
+| Critical financial action | Exact amounts and rounding, duplicate submits, idempotency, interrupted and retried operations, authorization, audit trail, and failure messaging on every supported platform |
+
 ## Journeys, accessibility, usability, and metrics
 
 Trace entry to completion: role, navigation, forms, persistence, feedback, cancellation, recovery, empty/loading/error states, and cross-interface transitions. Check API/CLI/UI inputs, outputs, error/status contracts, pagination, retries, idempotency, and compatibility as applicable.

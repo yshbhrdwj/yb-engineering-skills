@@ -24,6 +24,10 @@ Optional Markdown references total 5,417 words, versus 5,369 previously. They pr
 
 Measured on 1 November 2026 with the same word-count method. `yb-mobile-design-system` adds an 845-word entrypoint and seventeen references totaling 16,150 words (current revision; the first revision had 963 and 11,674). The entrypoint is larger than other roles because it carries the mode routing table and reference map; the domain knowledge stays in references that are read one section or file at a time. A one-line fix is designed to load the entrypoint only, or one reference. Adding the routing sentence grew `yb-frontend-engineer` from 489 to 501 words and `yb-frontend-reviewer` from 480 to 494. The table above is unchanged because it records the earlier revision.
 
+## Unified web and mobile frontend
+
+Measured on 2 November 2026, base `51d8c62` against the branch commit that adds this section, with the same whitespace word count over complete Codex `SKILL.md` files. Entrypoints: `yb-frontend-engineer` 501 → 529, `yb-frontend-reviewer` 494 → 529, `yb-qa-engineer` 503 → 530. Existing references: `experience-design.md` 474 → 489, `implementation-verification.md` 507 → 509, `interaction-probes.md` 388 → 498, `testing-depth.md` 247 → 416. New references, each loaded only when routing selects it: `platform-routing.md` 509, `mobile-implementation.md` 510, `native-probes.md` 364, `platform-testing.md` 358. The three roles' entrypoint text grew by 90 words (6.0%), and their optional references by 2,037 words (1,616 → 3,653). Runtime cost is unmeasured except for the two single-run samples in the [forward check](docs/evidence/2026-11-02-frontend-unified-forward-check.md). There, the fast-path case read no reference in either arm at near-identical token counts (68,045 versus 68,034).
+
 ## Behaviors intended to reduce unnecessary work
 
 - Batch independent, targeted reads; expand when evidence warrants it.

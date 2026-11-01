@@ -1,0 +1,5 @@
+{
+  "name": "tally",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"]
+}

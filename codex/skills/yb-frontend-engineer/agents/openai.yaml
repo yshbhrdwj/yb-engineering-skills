@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Frontend Engineer"
-  short_description: "Build coherent, accessible, working interfaces"
-  default_prompt: "Use $yb-frontend-engineer to design and implement this interface with complete interactions and appropriate verification."
+  short_description: "Build accepted web and mobile designs into working UI"
+  default_prompt: "Use $yb-frontend-engineer to implement this web or mobile interface to the accepted design with complete interactions and appropriate verification."

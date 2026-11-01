@@ -6,6 +6,7 @@ Copy the eleven complete folders from `skills/` into `~/.agents/skills/` or `<pr
 Use $yb-software-engineer to fix the defect and verify the affected behavior.
 Use $yb-code-reviewer to review this change against the supplied requirements. Report only.
 Use $yb-merge-pr to merge this PR after checking its exact head, reviews and CI.
+Use $yb-frontend-reviewer to review the Expo checkout screen on the available Android emulator. Report only.
 ```
 
 Codex can select skills from matching descriptions, or you can invoke them through `$` or `/skills`. The edition keeps name/description in `SKILL.md` and UI prompts in `agents/openai.yaml`. [Official skill documentation](https://learn.chatgpt.com/docs/build-skills)

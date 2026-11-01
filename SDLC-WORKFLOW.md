@@ -27,3 +27,19 @@ Accepted intent, implemented behavior, verified behavior, merge permission and d
 Run targeted checks first. Expand tests or investigation when the change, a failure or an unresolved risk warrants it. Fix confirmed findings; do not cycle reviewers until they invent no more suggestions. A new commit invalidates old head-specific review evidence. Recheck the changed scope and project-required gates, then finish or report the concrete blocker.
 
 For interfaces, rendering and interaction evidence complement code review. For state changes, include concurrency, compatibility, interrupted operation/retry and boundary cases that apply. For operations, pin the artifact and environment and verify user behavior and data, not just a successful command.
+
+## Frontend routing
+
+Design authorities (`yb-web-design-system`, `yb-mobile-design-system`) are consulted for direction; `yb-frontend-engineer` implements; `yb-frontend-reviewer` inspects independently; `yb-qa-engineer` validates behavior and regressions. The engineer's `references/platform-routing.md` picks the platform and authority, falls back to project design sources when an authority is not installed, and holds the handoff field lists (design → engineering, engineering → reviewer, reviewer → engineering, engineering → QA).
+
+| Scenario | Route |
+| --- | --- |
+| Unattractive UI that needs a redesign | Design authority for direction → engineer → review and QA by scope |
+| Find UI defects | Reviewer first; design authority only if a new direction is needed |
+| New web page | Engineer (standard path) with the web authority or project design document; review and QA by risk |
+| New mobile screen | Engineer (standard path) with the mobile authority or project design document; simulator/emulator evidence where available |
+| Small visual fix | Engineer with existing tokens; nothing else |
+| Complex functional change | Engineer → QA; review by risk |
+| Complete redesign | Authority → incremental implementation → independent review → QA → targeted recheck |
+
+A skill is a capability, not an agent. Delegate only when the work is separable, independent judgment matters, scope is bounded, the tools exist, and the value exceeds the cost. A self-check is never reported as independent review.

@@ -23,3 +23,5 @@ For a routine fix, the engineer inspects the affected path and callers, uses the
 For changes that keep state, check applicable cases: two operations at once; old code or data meeting new code; failure followed by retry; the first item beyond a limit. A documented shortcut is still reviewed against actual requirements.
 
 Installation and migration commands are in the [README](README.md). Platform details are in the [Claude Code](claude-code/README.md) and [Codex](codex/README.md) guides. Optional hooks have a [separate setup](claude-code/HOOKS.md).
+
+For frontend work (redesign, defect hunt, new page or screen, small visual fix), the [frontend routing table](SDLC-WORKFLOW.md#frontend-routing) shows which skills to use and which to skip.

@@ -1,4 +1,4 @@
 interface:
   display_name: "YB QA Engineer"
-  short_description: "Verify acceptance with focused, credible tests"
+  short_description: "Verify web, mobile, and service acceptance with tests"
   default_prompt: "Use $yb-qa-engineer to verify this candidate against its requirements and report actual evidence and readiness gaps."

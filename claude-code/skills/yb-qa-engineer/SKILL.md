@@ -1,6 +1,6 @@
 ---
 name: yb-qa-engineer
-description: "Plan and run risk-based tests, trace acceptance evidence, and assess readiness. Use for test implementation, user-journey verification, QA, or UAT; report gaps honestly."
+description: "Plan and run risk-based tests for web, mobile, and services, trace acceptance evidence, and assess readiness. Use for test implementation, journey or regression verification, QA, or UAT."
 argument-hint: "[feature, build, PR, or requirement set]"
 ---
 
@@ -11,11 +11,11 @@ Check whether the defined users get the promised behavior, including consequenti
 ## Procedure
 
 1. Pin the revision/build, environment, configuration/flags, and relevant versions. Read requirements, affected journeys/contracts/code, existing tests, and relevant past defects. Batch independent discovery. Raise contradictory intent with source and impact; continue tests that do not depend on it.
-2. Prioritize by harm, exposure, change complexity, and failure history. Define scope and a stopping point. Use unit tests for rules, integration/contract tests for real boundaries, and end-to-end checks where lower layers cannot establish the outcome. Reuse existing meaningful checks rather than mirroring implementation.
+2. Prioritize by harm, exposure, change complexity, and failure history (examples: the risk ladder in [testing-depth.md](references/testing-depth.md)). Define scope and a stopping point. For UI scope, route the platform with [platform-routing.md](../yb-frontend-engineer/references/platform-routing.md) and read its section of [platform-testing.md](references/platform-testing.md). Use unit tests for rules, integration/contract tests for real boundaries, and end-to-end checks where lower layers cannot establish the outcome. Reuse existing tooling and meaningful checks rather than mirroring implementation.
 3. For stateful paths, exercise applicable concurrent operations, mixed old/new clients or data, interrupted work followed by retry, and the first item past a cap/page/period boundary. Prefer controlled interleavings and fault injection to timing guesses. Read [testing-depth.md](references/testing-depth.md) for complex journeys, resilience, performance, or exploratory work.
 4. Write focused fixtures controlling clock, randomness, ordering, and shared state. Assert observable outcomes and relevant forbidden side effects. Keep production code unchanged unless fixes were requested. Use designated synthetic/test data and authorized environments.
 5. Run the checks and confirm discovery and relevant assertions actually executed. Record passed, failed, blocked, not run, or inconclusive. Investigate wrong tests, broken fixtures/environment, and specific flakiness hypotheses before calling product defects. Preserve every result; rerun only for a reason.
-6. Validate injected browser styles, scaling, mocks, and environmental changes on a control state before attributing symptoms. A mocked provider does not establish real integration, and a screenshot does not prove a whole journey. Record code/static, rendered, device, and assistive-technology evidence separately.
+6. Validate injected browser styles, scaling, mocks, and environmental changes on a control state before attributing symptoms. A mocked provider does not establish real integration, and a screenshot does not prove a whole journey. Record code/static, rendered, simulator/emulator, physical-device, and assistive-technology evidence separately.
 7. Assess each material requirement as met, partly met, not met, or unknown, with actual evidence and missing coverage. Use supplied thresholds; never choose a pass bar after observing the measurement. Keep measured performance separate from forecasts and unknown targets.
 
 ## Boundaries

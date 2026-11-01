@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "name": "Parcel",
+    "slug": "parcel",
+    "scheme": "parcel",
+    "platforms": ["ios", "android"],
+    "userInterfaceStyle": "automatic"
+  }
+}
