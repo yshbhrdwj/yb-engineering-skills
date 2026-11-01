@@ -1,6 +1,6 @@
 # Design foundations
 
-Platform-neutral principles, written to be shared: a future mobile design skill may cross-reference this file unchanged. Web-specific mechanics live in the other references. Read once per Mode 4 task, not per page; outputs link the project design document rather than restating this file.
+Platform-neutral principles. Web-specific mechanics live in the other references. Read once per Mode 4 task, not per page; outputs link the project design document rather than restating this file.
 
 ## Philosophy
 
