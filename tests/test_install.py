@@ -143,6 +143,32 @@ class InstallTests(unittest.TestCase):
         self.assertTrue(self.skill(".claude", base=project).is_dir())
         self.assertEqual(list(self.home.iterdir()), [])
 
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_tmp_project_path_installs_without_resolving_alias(self):
+        with tempfile.TemporaryDirectory(prefix="yb-raw-alias-", dir="/tmp") as raw:
+            self.run_installer("--target", "codex", "--project", raw)
+            self.assertTrue((Path(raw) / ".agents/skills/yb-first/SKILL.md").is_file())
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_var_project_path_installs_without_resolving_alias(self):
+        if not str(self.root).startswith("/private/var/"):
+            self.skipTest("this temporary root is outside the /var system alias")
+        project = self.root / "var-project"
+        project.mkdir()
+        raw = str(project).replace("/private/var/", "/var/", 1)
+        self.run_installer("--target", "claude-code", "--project", raw)
+        self.assertTrue((Path(raw) / ".claude/skills/yb-first/SKILL.md").is_file())
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_tmp_alias_does_not_allow_nested_user_symlink(self):
+        with tempfile.TemporaryDirectory(prefix="yb-raw-link-", dir="/tmp") as raw:
+            real = Path(raw) / "real"
+            real.mkdir()
+            link = Path(raw) / "linked"
+            link.symlink_to(real, target_is_directory=True)
+            self.run_installer("--target", "codex", "--project", str(link), success=False)
+            self.assertEqual(list(real.iterdir()), [])
+
     def test_parent_traversal_is_rejected(self):
         project = self.root / "project"
         project.mkdir()
@@ -198,6 +224,51 @@ class InstallTests(unittest.TestCase):
         result = self.run_installer("--target", "codex", "--update", success=False)
         self.assertIn("File/directory conflict", result.stderr)
         self.assertFalse(self.skill(name="yb-second").exists())
+
+    def add_migration_fixture(self):
+        for target in ("codex", "claude-code"):
+            source = self.repo / target / "skills" / "yb-code-reviewer"
+            source.mkdir()
+            (source / "SKILL.md").write_text("Unified code review")
+        for platform in (".agents", ".claude"):
+            for name in ("yb-code-correctness-reviewer", "yb-code-design-reviewer"):
+                old = self.skill(platform, name)
+                old.mkdir(parents=True)
+                (old / "SKILL.md").write_text("Local old instructions")
+                (old / "personal-notes.txt").write_text("Preserve in backup")
+
+    def test_migration_backs_up_retired_skills_before_removing_them(self):
+        self.add_migration_fixture()
+        self.run_installer("--target", "both", "--update", "--migrate")
+        backups = list((self.home / ".yb-engineering-skills-backups").iterdir())
+        self.assertEqual(len(backups), 1)
+        for target, platform in (("codex", ".agents"), ("claude-code", ".claude")):
+            self.assertTrue(self.skill(platform, "yb-code-reviewer").exists())
+            for name in ("yb-code-correctness-reviewer", "yb-code-design-reviewer"):
+                self.assertFalse(self.skill(platform, name).exists())
+                saved = backups[0] / target / name
+                self.assertEqual((saved / "SKILL.md").read_text(), "Local old instructions")
+                self.assertEqual((saved / "personal-notes.txt").read_text(), "Preserve in backup")
+
+    def test_migration_is_explicit_and_dry_run_does_not_remove_anything(self):
+        self.add_migration_fixture()
+        self.run_installer("--target", "both", "--migrate", success=False)
+        self.run_installer("--target", "both", "--update", "--migrate", "--dry-run")
+        self.assertTrue(self.skill(name="yb-code-correctness-reviewer").exists())
+        self.assertFalse((self.home / ".yb-engineering-skills-backups").exists())
+        self.run_installer("--target", "both", "--update")
+        self.assertTrue(self.skill(name="yb-code-correctness-reviewer").exists())
+
+    def test_retired_skill_symlink_blocks_entire_migration_before_writes(self):
+        self.add_migration_fixture()
+        old = self.skill(name="yb-code-correctness-reviewer")
+        shutil.rmtree(old)
+        outside = self.root / "outside"
+        outside.mkdir()
+        old.symlink_to(outside, target_is_directory=True)
+        self.run_installer("--target", "both", "--update", "--migrate", success=False)
+        self.assertFalse(self.skill(name="yb-code-reviewer").exists())
+        self.assertEqual(list(outside.iterdir()), [])
 
 
 if __name__ == "__main__":

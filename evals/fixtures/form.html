@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Contact form fixture</title>
+<form id="contact">
+  <input id="email" placeholder="Email">
+  <div id="save" onclick="save()">Save</div>
+  <p id="status"></p>
+</form>
+<script>
+async function save() {
+  await fetch('/contact', {method: 'POST', body: document.querySelector('#email').value});
+  document.querySelector('#status').textContent = 'Saved';
+  document.querySelector('#email').value = '';
+}
+</script>
+</html>

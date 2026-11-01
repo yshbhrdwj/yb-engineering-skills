@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Product Strategist"
-  short_description: "Explore ideas and create product-to-delivery handoffs"
-  default_prompt: "Use $yb-product-strategist to discuss my idea, challenge its assumptions, and shape a product brief for architecture and engineering."
+  short_description: "Shape product decisions and actionable briefs"
+  default_prompt: "Use $yb-product-strategist to shape this product idea and produce a focused brief with assumptions and open decisions."

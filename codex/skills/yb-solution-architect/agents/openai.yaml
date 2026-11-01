@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Solution Architect"
-  short_description: "Create clear, complete, implementable software designs"
-  default_prompt: "Use $yb-solution-architect to create a complete design that nontechnical stakeholders and engineers can use."
+  short_description: "Design practical systems with explicit tradeoffs"
+  default_prompt: "Use $yb-solution-architect to design this system with clear contracts, failure behavior, and an implementable handoff."

@@ -13,6 +13,7 @@ import tempfile
 
 TARGETS = {"codex": ".agents", "claude-code": ".claude"}
 SKILL_NAME = re.compile(r"yb-[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+RETIRED_SKILLS = ("yb-code-correctness-reviewer", "yb-code-design-reviewer")
 
 
 class InstallError(Exception):
@@ -20,11 +21,18 @@ class InstallError(Exception):
 
 
 def safe_path(path):
-    """Reject traversal and symlinks before resolving or creating any path."""
+    """Allow verified macOS root aliases, but reject user-controlled links."""
     path = Path(path).expanduser()
     if ".." in path.parts:
         raise InstallError(f"Parent traversal ('..') is not allowed: {path}")
     path = path.absolute()
+    if sys.platform == "darwin":
+        for alias in (Path("/tmp"), Path("/var"), Path("/etc")):
+            if path == alias or alias in path.parents:
+                target = Path("/private") / alias.name
+                if alias.is_symlink() and alias.resolve(strict=True) == target:
+                    path = target / path.relative_to(alias)
+                break
     for part in (path, *path.parents):
         if part.is_symlink():
             raise InstallError(f"Symlinks are not allowed: {part}")
@@ -94,11 +102,22 @@ def make_plans(repo, base, targets):
     return plans
 
 
-def install(repo, base, targets, *, update=False, dry_run=False):
+def install(repo, base, targets, *, update=False, dry_run=False, migrate=False):
     repo, base = safe_path(repo), safe_path(base)
     if not base.is_dir():
         raise InstallError(f"Home or project directory must already exist: {base}")
     plans = make_plans(repo, base, targets)
+    if migrate and not update:
+        raise InstallError("--migrate requires --update so retired skills are backed up before removal")
+    retired = []
+    for target in targets:
+        if not any(plan.target == target and plan.source.name == "yb-code-reviewer" for plan in plans):
+            continue
+        for name in RETIRED_SKILLS:
+            path = safe_path(base / TARGETS[target] / "skills" / name)
+            if path.exists():
+                inspect_tree(path)
+                retired.append((target, path))
     conflicts = [plan for plan in plans if plan.conflicts]
     if conflicts and not update:
         details = "\n".join(
@@ -107,7 +126,7 @@ def install(repo, base, targets, *, update=False, dry_run=False):
         raise InstallError(f"Conflicting files; rerun with --update to back up and replace them:\n{details}")
 
     backup_root = None
-    if conflicts:
+    if conflicts or (migrate and retired):
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
         backup_root = safe_path(base / ".yb-engineering-skills-backups" / stamp)
         if backup_root.exists():
@@ -117,6 +136,11 @@ def install(repo, base, targets, *, update=False, dry_run=False):
         action = "unchanged" if not plan.changed else "update" if plan.conflicts else "install"
         prefix = "Would " if dry_run else "Plan: "
         print(f"{prefix}{action}: {plan.destination} ({len(plan.changed)} files)")
+    for _, path in retired:
+        if migrate:
+            print(f"{'Would' if dry_run else 'Plan:'} back up and retire: {path}")
+        else:
+            print(f"Retired skill still installed: {path}. Use --update --migrate to back up and retire it.")
     if dry_run:
         if backup_root:
             print(f"Would back up conflicting skills under: {backup_root}")
@@ -131,6 +155,11 @@ def install(repo, base, targets, *, update=False, dry_run=False):
             backup = backup_root / plan.target / plan.source.name
             backup.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(plan.destination, backup)
+        if migrate:
+            for target, path in retired:
+                backup = backup_root / target / path.name
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(path, backup)
         print(f"Backups: {backup_root}")
 
     for plan in plans:
@@ -148,6 +177,10 @@ def install(repo, base, targets, *, update=False, dry_run=False):
             finally:
                 if temporary.exists():
                     temporary.unlink()
+    if migrate:
+        for _, path in retired:
+            inspect_tree(path)
+            shutil.rmtree(path)
     print("Installation complete. Unrelated skills and extra files were preserved.")
 
 
@@ -161,11 +194,13 @@ def main(argv=None):
                         help="Back up conflicting skills outside the skills roots, then replace conflicting files")
     parser.add_argument("--dry-run", action="store_true",
                         help="Preflight and show changes without writing files")
+    parser.add_argument("--migrate", action="store_true",
+                        help="With --update, back up and retire the two superseded code reviewer skills")
     args = parser.parse_args(argv)
     targets = tuple(TARGETS) if args.target == "both" else (args.target,)
     try:
         install(Path(__file__).absolute().parent.parent, args.project or Path.home(),
-                targets, update=args.update, dry_run=args.dry_run)
+                targets, update=args.update, dry_run=args.dry_run, migrate=args.migrate)
     except (InstallError, OSError) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1

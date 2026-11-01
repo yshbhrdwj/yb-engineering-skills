@@ -1,4 +1,4 @@
 interface:
   display_name: "YB QA Engineer"
-  short_description: "Verify requirements, user journeys, and release evidence"
-  default_prompt: "Use $yb-qa-engineer to test this build against its requirements and report defects, coverage, and remaining risks."
+  short_description: "Verify acceptance with focused, credible tests"
+  default_prompt: "Use $yb-qa-engineer to verify this candidate against its requirements and report actual evidence and readiness gaps."

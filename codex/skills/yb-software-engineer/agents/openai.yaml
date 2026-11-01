@@ -1,4 +1,4 @@
 interface:
   display_name: "YB Software Engineer"
-  short_description: "Design the change, implement it, and verify the outcome"
-  default_prompt: "Use $yb-software-engineer to inspect this project, design the requested change, then implement and verify it."
+  short_description: "Build small, complete, verified code changes"
+  default_prompt: "Use $yb-software-engineer to design and implement this change, then verify the affected behavior."

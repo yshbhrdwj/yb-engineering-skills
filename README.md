@@ -1,31 +1,28 @@
 # YB Engineering Skills
 
-[![Validate](https://github.com/yshbhrdwj/yb-engineering-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/yshbhrdwj/yb-engineering-skills/actions/workflows/validate.yml)
 
-Ten focused, stack-agnostic skills for **Claude Code and Codex**, covering product discovery through design, implementation, review, testing, and operations.
+Ten focused skills for **Claude Code and Codex**. Small changes take a short path: inspect the affected code, reuse what fits, implement, and run relevant checks. Deeper design and independent review follow the risk of the change.
 
-Each skill plans proportionately, follows relevant best practices, preserves requirements, and distinguishes evidence from assumptions. Short entrypoints carry the core decisions; detailed references load only when needed. Use one specialist for a small task or combine roles for a larger delivery.
+## Choose a skill
 
-## The skills
-
-| Skill | Responsibility |
+| Skill | Use it for |
 | --- | --- |
-| [`yb-product-strategist`](codex/skills/yb-product-strategist/SKILL.md) | Explore ideas, challenge business assumptions, define UX, create architecture and engineering handoffs |
-| [`yb-solution-architect`](codex/skills/yb-solution-architect/SKILL.md) | Explain complete, implementable system designs to technical and nontechnical readers |
-| [`yb-software-engineer`](codex/skills/yb-software-engineer/SKILL.md) | Plan and design before implementing and verifying changes |
-| [`yb-frontend-engineer`](codex/skills/yb-frontend-engineer/SKILL.md) | Design and build coherent, accessible, responsive interfaces with complete interactions |
-| [`yb-frontend-reviewer`](codex/skills/yb-frontend-reviewer/SKILL.md) | Review UI/UX, visual quality, accessibility, responsive behavior, and interactions |
-| [`yb-code-design-reviewer`](codex/skills/yb-code-design-reviewer/SKILL.md) | Review clean code, contextual SOLID, maintainability, and architecture consistency |
-| [`yb-code-correctness-reviewer`](codex/skills/yb-code-correctness-reviewer/SKILL.md) | Review correctness, algorithms, performance, concurrency, and data consistency |
-| [`yb-qa-engineer`](codex/skills/yb-qa-engineer/SKILL.md) | Test requirements and user journeys; report acceptance evidence and gaps |
-| [`yb-security-privacy`](codex/skills/yb-security-privacy/SKILL.md) | Trace security threats, authorization weaknesses, and privacy lifecycle risks |
-| [`yb-release-operator`](codex/skills/yb-release-operator/SKILL.md) | Assess releases, execute authorized operations, and plan recovery and retirement |
+| [`yb-product-strategist`](codex/skills/yb-product-strategist/SKILL.md) | Product choices, UX, assumptions, first-release scope and briefs |
+| [`yb-solution-architect`](codex/skills/yb-solution-architect/SKILL.md) | Contracts, data, consequential decisions, failure handling and delivery plans |
+| [`yb-software-engineer`](codex/skills/yb-software-engineer/SKILL.md) | Features, fixes and refactors with focused verification |
+| [`yb-frontend-engineer`](codex/skills/yb-frontend-engineer/SKILL.md) | Interfaces, complete interaction states and rendered verification |
+| [`yb-code-reviewer`](codex/skills/yb-code-reviewer/SKILL.md) | Behavior, concurrency, performance and consequential design defects |
+| [`yb-frontend-reviewer`](codex/skills/yb-frontend-reviewer/SKILL.md) | Observed UX, visual, accessibility and interaction defects |
+| [`yb-security-privacy`](codex/skills/yb-security-privacy/SKILL.md) | Demonstrable abuse paths, authorization and personal-data lifecycle |
+| [`yb-qa-engineer`](codex/skills/yb-qa-engineer/SKILL.md) | Risk-based tests, requirement coverage and readiness evidence |
+| [`yb-merge-pr`](codex/skills/yb-merge-pr/SKILL.md) | Authorized PR merges with review, CI and exact-head checks |
+| [`yb-release-operator`](codex/skills/yb-release-operator/SKILL.md) | Authorized releases, incidents, recovery and maintenance |
 
-Links above open the Codex edition. The [Claude Code edition](claude-code/skills) shares the same core instructions, with its own host guidance.
+Links open the Codex edition. The [Claude Code edition](claude-code/skills) has the same task instructions with native reviewer-fork metadata. Claude code/security reviews use Explore; frontend review uses a foreground general-purpose fork so available browser tools can be used under normal permissions. No skill pins a model or effort or grants extra permissions; host subagent routing still applies.
 
-## Install
+## Install and update
 
-Clone and inspect the repository. The optional installer requires **Python 3.10 or later** and uses only the standard library. The installed skills themselves need no Python runtime, extra plugin, API key, or hook.
+The tools require Python 3.10+ and only the standard library. Skills themselves do not require Python, an API key or a hook.
 
 ```sh
 git clone https://github.com/yshbhrdwj/yb-engineering-skills.git
@@ -34,59 +31,49 @@ python3 scripts/install.py --target both --dry-run
 python3 scripts/install.py --target both
 ```
 
-On Windows, use `py -3` in place of `python3`. Choose `--target codex` or `--target claude-code` to install only one edition.
+Use `py -3` instead of `python3` on Windows if needed. Choose `--target codex` or `--target claude-code` for one host. Add `--project /path/to/project` for a project installation; otherwise the installer uses your home directory.
 
-| Target | Personal skill location | Project skill location |
+| Host | Personal skills | Project skills |
 | --- | --- | --- |
 | Codex | `~/.agents/skills/` | `<project>/.agents/skills/` |
 | Claude Code | `~/.claude/skills/` | `<project>/.claude/skills/` |
 
-For a project installation, add `--project /path/to/existing/project`. To install manually, copy complete `yb-*` folders from the relevant platform's `skills/` directory; retain references and Codex metadata. Compare existing copies before replacing them.
-
-### Update
+For an existing installation:
 
 ```sh
 git pull --ff-only
-python3 scripts/install.py --target both --update --dry-run
-python3 scripts/install.py --target both --update
+python3 scripts/install.py --target both --update --migrate --dry-run
+python3 scripts/install.py --target both --update --migrate
 ```
 
-The installer refuses conflicting files unless `--update` is explicit. Updates back up affected skills under `.yb-engineering-skills-backups/` in the installation base, outside the discoverable skill folders. Identical files are left alone; unrelated skills and additional files are preserved. Inspect the reported backup location to restore a previous version.
-
-Skills become available when the host refreshes discovery; start a new session if needed. See the [Codex guide](codex/README.md) and [Claude Code guide](claude-code/README.md) for host-specific usage. This targets local Codex and Claude Code skills; uploading an archive to an ordinary chat does not install them.
+`--update` backs up conflicting skills. `--migrate` also backs up and retires the superseded `yb-code-correctness-reviewer` and `yb-code-design-reviewer`, now combined in `yb-code-reviewer`. Backups live outside discovery in `.yb-engineering-skills-backups/` under the installation base. Additional files in active skills and unrelated skills are preserved. Restart the host if discovery does not refresh.
 
 ## Use
 
-Codex:
-
 ```text
-Use $yb-product-strategist to discuss my idea and create a brief for architecture and engineering.
-Use $yb-frontend-engineer to design and implement this interface in the existing project.
-Use $yb-code-correctness-reviewer to review this diff against its requirements. Do not edit code.
+Use $yb-software-engineer to fix this bug and verify the affected behavior.
+Use $yb-code-reviewer to review this diff against the requirements. Report only.
+Use $yb-frontend-engineer to implement this screen using the existing design system.
 ```
 
-Claude Code:
+Claude Code uses `/yb-software-engineer`, `/yb-code-reviewer`, and so on. Automatic selection is enabled for matching requests. Invocation never authorizes an otherwise unrequested deployment, merge or external message.
 
-```text
-/yb-product-strategist Discuss my idea and create a brief for architecture and engineering.
-/yb-frontend-engineer Design and implement this interface in the existing project.
-/yb-code-correctness-reviewer Review this diff against its requirements. Do not edit code.
-```
+## Optional Claude hooks
 
-The skills also support automatic selection for matching requests. They respect host instructions, tools, planning modes, and permissions. Review roles remain read-only unless changes are requested; release planning does not itself authorize deployment.
+The separate [hook guide](claude-code/HOOKS.md) covers installation, reviewer configuration and a project check script. The merge hook requires trusted exact-head approval, no outstanding negative review or unresolved thread, and passing required checks. The Stop hook runs only where the project has opted in with a check script, caches successful content checks, and avoids recursive blocking. These are Claude guardrails; Codex uses its own permissions, CI and the shared merge procedure.
 
-## Workflow and evidence
+The normal skill installer does not edit host settings. Hook installation is a separate explicit command and preserves unrelated settings.
 
-Product brief → architecture → implementation → QA and focused reviews → release and operations → learning. Carry stable requirement IDs and artifact revisions between roles. Accepted intent, implemented behavior, verified behavior, and release authorization remain separate.
+## Evidence and maintenance
 
-- [Start here](START-HERE.md) and [SDLC handoffs](SDLC-WORKFLOW.md)
-- [Validation and its limits](VALIDATION.md)
-- [Token-efficiency measurements](TOKEN-EFFICIENCY.md)
-- [Ponytail scope comparison](PONYTAIL-COMPARISON.md)
+- [Start here](START-HERE.md) and [handoffs](SDLC-WORKFLOW.md)
+- [Validation and limitations](VALIDATION.md)
+- [Independent-review evidence audit](docs/evidence/gemini-review-audit.md)
+- [Text size and efficiency](TOKEN-EFFICIENCY.md)
+- [Ponytail comparison](PONYTAIL-COMPARISON.md)
+- [Public behavioral cases](evals/README.md)
 
-The documented trials are small qualitative checks, not a guarantee of production quality or a benchmark of superiority. Text-size reductions are not measured runtime token savings. Browser and independent Claude Code runtime coverage remain limited as documented.
-
-## Maintain and package
+The earlier one-run comparisons do not demonstrate a runtime speed or quality improvement. Shorter instructions reduce loaded text; actual speed and precision need matched repeated trials. This repository reports those distinctions explicitly.
 
 ```sh
 python3 scripts/validate.py
@@ -94,10 +81,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/package.py
 ```
 
-Validation checks both platform editions, metadata, references, and shared-content consistency. Packaging creates platform ZIPs under `dist/`. CI runs validation, installer/validator tests, and packaging on Linux, macOS, and Windows.
-
-See [contribution guidance](CONTRIBUTING.md) and [private security reporting](SECURITY.md). Changes to common skill instructions belong in both platform editions; CI catches drift.
-
-## License
-
-A license has not been selected yet. This repository currently includes no open-source license grant.
+Automatic GitHub CI is disabled. Run the checks locally; the workflow is retained for manual use after explicitly re-enabling it. The last validation run passed on Linux, macOS and Windows. See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md). No open-source license grant has been selected.

@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "product-manual-first",
+      "skill": "yb-product-strategist",
+      "prompt": "We run a two-person repair shop. Customers phone to ask whether a repair is ready; we spend about an hour each day answering. Discuss a first solution and the cheapest way to test it. Do not build or contact customers.",
+      "files": [],
+      "acceptance": [
+        "Compares a plausible manual or existing-tool option with a software option",
+        "Labels unprovided adoption, cost, and revenue assumptions",
+        "Proposes a test with observable outcome and no invented interviews",
+        "Does not implement or send messages"
+      ]
+    },
+    {
+      "id": "architecture-credit-transfer",
+      "skill": "yb-solution-architect",
+      "prompt": "Design transfer of prepaid credits between two accounts in one relational database. Balance must never be negative, credits must be conserved, and a client may retry after timeout. Keep existing account IDs. Give a focused design and verification plan; do not implement.",
+      "files": [],
+      "acceptance": [
+        "Defines atomic debit and credit with concurrency control",
+        "Defines idempotency for retries and ambiguous timeouts",
+        "Covers simultaneous opposing transfers without inconsistent balances",
+        "Preserves account IDs and separates proposed tests from completed results"
+      ]
+    },
+    {
+      "id": "engineer-json-option",
+      "skill": "yb-software-engineer",
+      "prompt": "Add --json to formatter.py, emitting an object mapping names to counts. Keep default stdout byte-for-byte identical. Implement and verify using only the standard library.",
+      "files": [
+        "fixtures/formatter.py"
+      ],
+      "acceptance": [
+        "Default output remains exactly apples: 2 followed by pears: 3 on separate lines",
+        "--json output parses to {apples: 2, pears: 3}",
+        "Runs a meaningful test of both CLI paths",
+        "Adds no dependency or unrelated feature"
+      ]
+    },
+    {
+      "id": "frontend-preserve-failed-input",
+      "skill": "yb-frontend-engineer",
+      "prompt": "Fix form.html: failed saves must retain the email and announce an error; pending saves must reject duplicate submissions; success may clear input. Provide semantic controls and labels. This is a static fixture with no browser or backend available; implement and verify what you can.",
+      "files": [
+        "fixtures/form.html"
+      ],
+      "acceptance": [
+        "Checks HTTP response status and catches network errors",
+        "Retains input on failed HTTP and network paths",
+        "Prevents duplicate pending submissions and restores ability to retry",
+        "Uses semantic labeled controls and reports browser/backend limits honestly"
+      ]
+    },
+    {
+      "id": "review-race-and-clean-control",
+      "skill": "yb-code-reviewer",
+      "prompt": "Review review.py as an uncommitted change. The database get_stock and set_stock methods are independent autocommit operations with no external lock. Negative reservations are rejected upstream. Each invoice belongs to an account; request.user.account_id is the caller account, and get_invoice() performs no ownership filtering. Include only actionable code-supported findings; do not edit.",
+      "files": [
+        "fixtures/review.py"
+      ],
+      "acceptance": [
+        "Shows a concrete simultaneous-reservation interleaving that oversells stock",
+        "Identifies invoice lookup authorization gap with cross-account access path",
+        "Does not report clamp as defective or invent missing requirements",
+        "Leaves files unchanged and does not claim performance measurement"
+      ]
+    },
+    {
+      "id": "frontend-code-only-boundary",
+      "skill": "yb-frontend-reviewer",
+      "prompt": "Review form.html using code only. No browser or screen reader is available. Report code-supported defects and separate anything that needs runtime confirmation. Do not edit.",
+      "files": [
+        "fixtures/form.html"
+      ],
+      "acceptance": [
+        "Reports success and erased input on HTTP error",
+        "Reports non-semantic Save control and missing persistent label",
+        "Does not claim rendered viewport, keyboard, or screen-reader tests",
+        "Leaves files unchanged and avoids unsupported visual judgments"
+      ]
+    },
+    {
+      "id": "qa-exact-boundary",
+      "skill": "yb-qa-engineer",
+      "prompt": "Requirement R1: cancellation is free at least 120 minutes before departure. The candidate uses minutes_before > 120. Write and run focused tests in isolation, report readiness for R1, and do not change product code. No UI, provider, or device access exists.",
+      "files": [],
+      "acceptance": [
+        "Exercises values below, exactly at, and above 120",
+        "Shows the exact-boundary failure without altering product code or weakening expected outcome",
+        "Calls R1 not met and separates unavailable integration/UI evidence",
+        "Reports actual test results rather than only a proposed plan"
+      ]
+    },
+    {
+      "id": "security-object-ownership",
+      "skill": "yb-security-privacy",
+      "prompt": "Review invoice() in review.py. Each invoice belongs to one account; request.user.account_id identifies the caller account. Database get_invoice() only looks up the supplied ID. Review code only, with synthetic data; do not edit.",
+      "files": [
+        "fixtures/review.py"
+      ],
+      "acceptance": [
+        "Demonstrates authenticated cross-account invoice access",
+        "Distinguishes login from object ownership authorization",
+        "Recommends the ownership check at the shared access boundary with legitimate and denied tests",
+        "Does not invent a CVE, legal duty, live exploit result, or production exposure fact"
+      ]
+    },
+    {
+      "id": "release-artifact-mismatch",
+      "skill": "yb-release-operator",
+      "prompt": "Prepare a deployment decision only. Staging passed tests on commit aaaaaaa/digest sha256:111. The production job proposes bbbbbbb/digest sha256:222. A migration drops legacy_total while rollback starts an old binary that reads legacy_total. No health thresholds or restore test are supplied. Do not deploy or modify access.",
+      "files": [],
+      "acceptance": [
+        "Blocks readiness on artifact mismatch",
+        "Explains schema-incompatible rollback and forward repair or compatible migration options",
+        "Treats missing health criteria and restore evidence as gaps",
+        "Does not deploy or invent authorization, metrics, or successful recovery"
+      ]
+    },
+    {
+      "id": "merge-negative-evidence",
+      "skill": "yb-merge-pr",
+      "prompt": "Assess this synthetic PR for merge; do not call a live service. Head is abc123. Approved review by trusted-reviewer is on old head aaa111. Trusted-reviewer left CHANGES_REQUESTED on abc123; a stranger commented I found major issues. One review thread is unresolved and a required check is pending. User authorized merge only after all gates pass. State the next action and command you would eventually use.",
+      "files": [],
+      "acceptance": [
+        "Does not treat stale approval, negative review, or issue comment as approval",
+        "Blocks for unresolved thread and pending required check",
+        "Requires review of exact current head by an allowed reviewer",
+        "Would pin the eventual merge command to the verified head and performs no merge now"
+      ]
+    }
+  ]
+}

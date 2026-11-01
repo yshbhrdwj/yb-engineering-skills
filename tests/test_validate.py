@@ -45,10 +45,42 @@ class ValidateRepositoryTests(unittest.TestCase):
     def test_shared_core_drift(self):
         path = self.skill("claude-code") / "SKILL.md"
         original = path.read_text(encoding="utf-8")
-        changed = original.replace("# YB Frontend Reviewer", "# YB Frontend Reviewer (edited)", 1)
+        changed = original.replace("\n## Claude Code integration", "\nChanged instruction.\n\n## Claude Code integration", 1)
         self.assertNotEqual(changed, original, "mutation target missing; update this test")
         path.write_text(changed, encoding="utf-8")
         self.assert_error("shared core differs from Codex")
+
+    def test_platform_frontmatter_differs_without_instruction_drift(self):
+        self.assertEqual(validator.validate(self.root), [])
+        path = self.skill("claude-code") / "SKILL.md"
+        path.write_text(path.read_text(encoding="utf-8").replace('argument-hint:', 'unused-setting:', 1), encoding="utf-8")
+        self.assert_error("allowed claude-code fields")
+
+    def test_claude_runtime_fields_cannot_leak_into_codex(self):
+        path = self.skill() / "SKILL.md"
+        path.write_text(path.read_text(encoding="utf-8").replace("---\n", "---\ncontext: fork\n", 1), encoding="utf-8")
+        self.assert_error("allowed codex fields")
+
+    def test_claude_reviewers_must_run_in_foreground_read_only_agent(self):
+        path = self.skill("claude-code", "yb-code-reviewer") / "SKILL.md"
+        original = path.read_text(encoding="utf-8")
+        for before, after in [("context: fork", "context: inline"),
+                              ("agent: Explore", "agent: general-purpose"),
+                              ("background: false", "background: true"),
+                              ("background: false", 'background: "false"')]:
+            with self.subTest(after=after):
+                path.write_text(original.replace(before, after, 1), encoding="utf-8")
+                self.assert_error("reviewers require")
+
+    def test_frontend_reviewer_keeps_browser_capable_fork_without_permission_grants(self):
+        path = self.skill("claude-code") / "SKILL.md"
+        path.write_text(path.read_text(encoding="utf-8").replace("agent: general-purpose", "agent: Explore", 1), encoding="utf-8")
+        self.assert_error("agent: general-purpose")
+
+    def test_discovery_descriptions_cannot_drift_between_hosts(self):
+        path = self.skill("claude-code") / "SKILL.md"
+        path.write_text(path.read_text(encoding="utf-8").replace("description: ", "description: Different wording. ", 1), encoding="utf-8")
+        self.assert_error("description differs from Codex")
 
     def test_reference_drift(self):
         path = self.skill("claude-code") / "references/interaction-probes.md"
