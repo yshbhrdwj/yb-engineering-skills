@@ -1,6 +1,6 @@
 # Codex edition
 
-Copy the eleven complete folders from `skills/` into `~/.agents/skills/` or `<project>/.agents/skills/`, retaining `agents/openai.yaml`. The repository installer supports dry runs, backups and migration; see the root README when using the source checkout. Restart Codex if discovery does not refresh.
+Copy the twelve complete folders from `skills/` into `~/.agents/skills/` or `<project>/.agents/skills/`, retaining `agents/openai.yaml`. The repository installer supports dry runs, backups and migration; see the root README when using the source checkout. Restart Codex if discovery does not refresh.
 
 ```text
 Use $yb-software-engineer to fix the defect and verify the affected behavior.

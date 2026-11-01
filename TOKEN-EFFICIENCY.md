@@ -20,6 +20,10 @@ The two former code-review entrypoints are summed in the unified reviewer baseli
 
 Optional Markdown references total 5,417 words, versus 5,369 previously. They preserve useful conditional depth and are not loaded wholesale. Total main-plus-reference text is 10,350 words versus 13,181 previously, a 21.5% reduction.
 
+## Mobile design system addition
+
+Measured on 1 November 2026 with the same word-count method. `yb-mobile-design-system` adds an 845-word entrypoint and seventeen references totaling 16,150 words (current revision; the first revision had 963 and 11,674). The entrypoint is larger than other roles because it carries the mode routing table and reference map; the domain knowledge stays in references that are read one section or file at a time. A one-line fix is designed to load the entrypoint only, or one reference. Adding the routing sentence grew `yb-frontend-engineer` from 489 to 501 words and `yb-frontend-reviewer` from 480 to 494. The table above is unchanged because it records the earlier revision.
+
 ## Behaviors intended to reduce unnecessary work
 
 - Batch independent, targeted reads; expand when evidence warrants it.

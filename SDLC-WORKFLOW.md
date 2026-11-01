@@ -6,7 +6,8 @@ Use the smallest relevant set of roles. Stages can overlap; a simple fix does no
 | --- | --- | --- |
 | Shape | `yb-product-strategist` | Evidence and idea → user journey, choices, scope and brief |
 | Design | `yb-solution-architect` | Intent and current system → contracts, data, decisions and delivery slices |
-| Experience design | `yb-web-design-system` | Accepted goals and current UI → web direction, tokens, component contracts and a persisted design document |
+| Web design | `yb-web-design-system` | Accepted goals and current UI → web direction, tokens, component contracts and a persisted design document |
+| Visual design | `yb-mobile-design-system` | Product intent and current app → direction, tokens, component contracts and acceptance checks |
 | Build | `yb-software-engineer` or `yb-frontend-engineer` | Agreed behavior → code and actual verification |
 | Review | `yb-code-reviewer`, `yb-frontend-reviewer`, `yb-security-privacy`, as relevant | Raw artifacts and requirements → grounded findings |
 | Verify | `yb-qa-engineer` | Exact candidate and criteria → acceptance evidence and gaps |

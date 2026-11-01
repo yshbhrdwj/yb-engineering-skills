@@ -1,13 +1,16 @@
 # Behavioral checks
 
-The 22 cases in [cases.json](cases.json) are small, public, synthetic tasks. They exercise observable outcomes for every role, including a correct-code control inside the review fixture. They are separate from private historical trials and contain no customer code or prompts.
+The cases in [cases.json](cases.json) are small, public, synthetic tasks. They exercise observable outcomes for every role, including a correct-code control inside the review fixture. They are separate from private historical trials and contain no customer code or prompts.
 
 | Skill | Cases |
 | --- | --- |
-| Ten original roles | One each, ids without the `web-design-` prefix |
+| Ten original roles | One each, ids without a `web-design-` or `mobile-` prefix |
 | `yb-web-design-system` | Twelve `web-design-*` cases: button spacing, type hierarchy, responsive navigation, premium landing page, SaaS dashboard, trading screen, site redesign, checkout form, modal, layout failure, cross-page consistency, greenfield system |
+| `yb-mobile-design-system` | Seventeen `mobile-*` cases, described below |
 
 The web-design fixtures under `fixtures/web-design/` are multi-file and seed real defects beside traps (correct code that looks wrong). The hidden acceptance list is the answer key: score recall of seeded defects, false positives on traps, and an efficiency outcome (mode chosen, references loaded, no invented evidence, no unrequested changes). Some keys are numeric, such as computed contrast ratios; recompute them rather than trusting a runner's arithmetic.
+
+The seventeen `yb-mobile-design-system` cases use a synthetic Expo app in [fixtures/mobile](fixtures/mobile). They span a one-line spacing fix, typography hierarchy, a reusable component, iOS navigation, Android back and insets, a screen redesign, app-wide card drift, text scaling, high-density trading, a premium family-wellness direction, reuse of an approved design authority, a missing-device fallback, subtle craft defects, a clean control that should produce no defect, a gloved field-work form, and a mixed-age family screen. Each records its intended `mode` (1 micro to 4 system). Small cases also set `max_skill_references`, and their acceptance criteria require that no audit, playbook, or delegation runs; large cases require the analysis that efficiency must not drop. The summary helper compares two arms per workspace, so run the three baseline comparisons as separate workspaces: `old_skill` is `yb-frontend-engineer` in one and the UI/UX Pro Max-assisted workflow in another, and `without_skill` is the no-skill control. Count reference files and tool calls from transcripts, not from self-reports. `mobile-seeded-app-audit` is the discriminating case: a six-file app with 13 `seeded_defects` and three `traps` that look wrong but are correct. Score recall (seeded defects reported), false positives (traps reported, or factually wrong claims), and whether contrast was computed; valid extra findings are not false positives.
 
 ## Run a controlled comparison
 

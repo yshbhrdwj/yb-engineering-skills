@@ -132,6 +132,302 @@
       ]
     },
     {
+      "id": "mobile-micro-icon-gap",
+      "skill": "yb-mobile-design-system",
+      "mode": 1,
+      "max_skill_references": 1,
+      "prompt": "In PrimaryButton.tsx the icon looks jammed against the label. Fix it using the existing tokens. Expo app; no simulator is available.",
+      "files": [
+        "fixtures/mobile/PrimaryButton.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Replaces the 3-point icon margin with the existing gap.inlineIcon token or an equivalent token-based gap",
+        "Changes nothing else in the component and adds no dependency",
+        "Reads at most one skill reference and runs no audit, industry playbook, or delegation",
+        "Reports in a few lines and states that the change was not rendered"
+      ]
+    },
+    {
+      "id": "mobile-type-hierarchy",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "The workout summary screen feels flat and hard to scan. Diagnose the typography hierarchy and propose the correction using the app's tokens. Do not edit files.",
+      "files": [
+        "fixtures/mobile/WorkoutSummary.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Identifies the regular-weight 18 title and 17 section headings as too close to body text and maps them to type.title/type.heading roles",
+        "Identifies proportional digits in stat values and recommends the tabular metric role",
+        "Flags allowFontScaling={false} on stat values and the fixed card height as text-scaling failures",
+        "Separates source-based findings from unverified rendered appearance and leaves files unchanged"
+      ]
+    },
+    {
+      "id": "mobile-component-text-field",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Specify a reusable TextField for our Expo app (iOS and Android) covering label, helper, error, character count, secure entry, and disabled. Use the existing tokens. Specification only.",
+      "files": [
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Provides anatomy, token-based geometry, and states including focused, filled, error, disabled, and read-only",
+        "Requires a persistent visible label and an accessible error association and announcement",
+        "Lets height grow with text scaling and states a minimum target",
+        "States what is shared across platforms and what follows platform conventions (keyboard, autofill, secure entry)"
+      ]
+    },
+    {
+      "id": "mobile-ios-back-swipe",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Users on iPhone say swiping back does not work in the profile area. Diagnose the navigation design and recommend changes. Report only.",
+      "files": [
+        "fixtures/mobile/ProfileStack.tsx"
+      ],
+      "acceptance": [
+        "Identifies gestureEnabled: false as disabling the iOS edge-swipe back gesture",
+        "Identifies the custom text Back header button and the JS stack as diverging from native back behavior and recommends the native stack or default back button",
+        "Notes that the large title on the Settings detail level is inconsistent with iOS guidance",
+        "Does not edit files and labels conclusions as source-based"
+      ]
+    },
+    {
+      "id": "mobile-android-back-and-insets",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Review the Android behavior and design of NoteEditor. The app targets API 36. Recommend design corrections; do not edit.",
+      "files": [
+        "fixtures/mobile/NoteEditor.tsx"
+      ],
+      "acceptance": [
+        "Identifies that the always-true BackHandler blocks system back and conflicts with predictive back; recommends confirming only when there are unsaved changes",
+        "Identifies the save failure shown in a 3-second snackbar as unsuitable for a critical, data-loss error",
+        "Identifies that the bottom bar ignores navigation-bar and IME insets under edge-to-edge",
+        "Flags the text-only SAVE control's target size and missing button semantics"
+      ]
+    },
+    {
+      "id": "mobile-rn-screen-redesign",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "Redesign WorkoutSummary for a fitness app. Keep the content. Implement the redesign using the existing tokens, then report.",
+      "files": [
+        "fixtures/mobile/WorkoutSummary.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Replaces hardcoded colors, sizes, and padding with existing tokens and supports dark theme",
+        "Establishes a clear hierarchy with prominent tabular metrics and labeled share action",
+        "Removes the fixed card height and font-scaling block so the layout grows at large text",
+        "Does not add dependencies and reports rendered verification as outstanding"
+      ]
+    },
+    {
+      "id": "mobile-full-app-cards",
+      "skill": "yb-mobile-design-system",
+      "mode": 4,
+      "prompt": "Our card components have drifted apart across features. Audit consistency and give an app-wide correction plan. Report only.",
+      "files": [
+        "fixtures/mobile/cards.tsx",
+        "fixtures/mobile/tokens.ts",
+        "fixtures/mobile/DESIGN.md"
+      ],
+      "acceptance": [
+        "Traces the drift to cards bypassing DESIGN.md card rules (inset.card, radius.lg, no borders or shadows) rather than listing each difference as separate",
+        "Identifies MealCard's non-concentric nested radius",
+        "Proposes one shared card component with token-based variants and an incremental migration",
+        "States audit coverage limits (three components, source only, no rendered screens)"
+      ]
+    },
+    {
+      "id": "mobile-text-scaling-failure",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "QA reports the workout summary breaks at the largest accessibility text size. Explain the design causes and the corrections. Do not edit.",
+      "files": [
+        "fixtures/mobile/WorkoutSummary.tsx"
+      ],
+      "acceptance": [
+        "Identifies the fixed 72-point card height and two-line notes truncation as causes of clipping and lost content",
+        "Identifies allowFontScaling={false} as an accessibility regression for primary data",
+        "Recommends reflow at large sizes (single column stats, growing cards) rather than capping text",
+        "Identifies the unlabeled share icon button and its small target"
+      ]
+    },
+    {
+      "id": "mobile-trading-density",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Improve this positions row for active traders who scan about 30 rows at once. Give the design corrections.",
+      "files": [
+        "fixtures/mobile/PositionRow.tsx"
+      ],
+      "acceptance": [
+        "Recommends tabular figures and right or decimal alignment for numeric columns instead of centered text",
+        "Identifies change direction conveyed by color alone (no sign or arrow) and the absolute value hiding sign",
+        "Recommends tighter row height suited to high density without reducing the target below platform minimums",
+        "Notes locale-dependent up/down color conventions or currency formatting"
+      ]
+    },
+    {
+      "id": "mobile-family-wellness-direction",
+      "skill": "yb-mobile-design-system",
+      "mode": 4,
+      "prompt": "Propose a premium evolution of Hearth's visual direction for a paid tier while keeping the approved identity. Direction and token deltas only.",
+      "files": [
+        "fixtures/mobile/DESIGN.md",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Preserves the approved calm, warm direction and existing tokens, proposing deltas rather than replacement",
+        "Grounds premium qualities in specific changes (type, imagery, motion, surfaces) appropriate to family wellness",
+        "Avoids clinical, competitive, or childish treatments named as out of bounds",
+        "Checks or requires contrast for any new color roles in both themes"
+      ]
+    },
+    {
+      "id": "mobile-reuse-approved-authority",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Design the bedtime-routine detail card and its edit sheet for Hearth. Follow our design system.",
+      "files": [
+        "fixtures/mobile/DESIGN.md",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Uses DESIGN.md card rules and semantic tokens without proposing a new design system",
+        "Uses a native form sheet with detents for editing, per the approved platform stance",
+        "Does not restart product discovery or load unrelated industry playbooks",
+        "Includes states and accessibility for the card and sheet"
+      ]
+    },
+    {
+      "id": "mobile-no-device-fallback",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "Verify that WorkoutSummary looks right on iPhone and Android in dark mode. No simulator, emulator, or device is available in this environment.",
+      "files": [
+        "fixtures/mobile/WorkoutSummary.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Does not claim rendered, screenshot, or device verification",
+        "Completes static analysis: hardcoded light colors (#fff, #222, #F2F2F2) will not adapt to dark mode",
+        "Lists the minimum outstanding rendered checks (platforms, dark mode, largest text)",
+        "Keeps the report proportional rather than running a full app audit"
+      ]
+    },
+    {
+      "id": "mobile-subtle-craft-defects",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "prompt": "Something about ProfileHeader looks slightly unpolished but nobody can say what. Find the specific visual-craft defects and the corrections. Report only.",
+      "files": [
+        "fixtures/mobile/ProfileHeader.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Identifies the follower count and label centered instead of baseline-aligned",
+        "Identifies the non-concentric avatar radius (20 inside 20 with a 4-point inset; inner should be about 16)",
+        "Identifies mixed icon families (Ionicons, MaterialIcons, Feather) and inconsistent icon sizes",
+        "Identifies loose letter spacing on body text and the 10-point location caption",
+        "Identifies the edit icon button's small target and missing accessible name",
+        "Every reported defect is supported by the fixture; no invented measurements or rendered claims"
+      ]
+    },
+    {
+      "id": "mobile-clean-control",
+      "skill": "yb-mobile-design-system",
+      "mode": 2,
+      "max_skill_references": 1,
+      "prompt": "Review SettingsRow for visual, platform, and accessibility defects before we reuse it everywhere. Report only defects you can support.",
+      "files": [
+        "fixtures/mobile/SettingsRow.tsx",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Reports no Required or Guideline-level defect for this component",
+        "Labels any suggestion as optional (Heuristic or Taste) with its tradeoff",
+        "Does not invent measurements, rendered results, or device testing",
+        "Keeps the report brief and proportional to a clean result"
+      ]
+    },
+    {
+      "id": "mobile-enterprise-field-form",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "Field inspectors complete this form 20+ times a day, often wearing gloves, outdoors, with patchy signal. Improve the form's design. Report the design changes; do not edit.",
+      "files": [
+        "fixtures/mobile/InspectionForm.tsx"
+      ],
+      "acceptance": [
+        "Replaces placeholder-only labels with persistent labels and per-field inline errors, and flags that the finally block erases input after failure",
+        "Groups fields into meaningful sections or steps with progress and uses numeric keyboards for numeric fields",
+        "Recommends draft persistence or an offline queue with visible sync status",
+        "Recommends large high-contrast targets and a specific action label reachable above the keyboard"
+      ]
+    },
+    {
+      "id": "mobile-family-mixed-ages",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "Design the home screen of Hearth's shared chore board, used by everyone from children aged 8 to grandparents. Screen specification only.",
+      "files": [
+        "fixtures/mobile/DESIGN.md",
+        "fixtures/mobile/tokens.ts"
+      ],
+      "acceptance": [
+        "Identifies members by name plus avatar, never color alone, per DESIGN.md",
+        "Keeps text scaling uncapped and sizes type and targets for older adults and children",
+        "Has one clear primary action and simple navigation, avoiding childish, gamified, or surveillance tone",
+        "Reuses Hearth's approved tokens and direction instead of inventing a new one"
+      ]
+    },
+    {
+      "id": "mobile-seeded-app-audit",
+      "skill": "yb-mobile-design-system",
+      "mode": 3,
+      "prompt": "Audit the Streak app's main components (all files here) for visual, platform, and accessibility defects before release. Report only; do not edit.",
+      "files": [
+        "fixtures/mobile/habit-app/DESIGN.md",
+        "fixtures/mobile/tokens.ts",
+        "fixtures/mobile/habit-app/TabBar.tsx",
+        "fixtures/mobile/habit-app/HabitRow.tsx",
+        "fixtures/mobile/habit-app/FocusTimer.tsx",
+        "fixtures/mobile/habit-app/StatsCard.tsx",
+        "fixtures/mobile/habit-app/EditHabitSheet.tsx"
+      ],
+      "seeded_defects": [
+        "TabBar: selected tab shown by color only",
+        "TabBar: fixed bottom padding ignores the bottom safe-area inset",
+        "HabitRow: checkbox role without checked state",
+        "HabitRow: streak text #7C8188 fails text contrast (about 3.9:1 on white) and bypasses color roles",
+        "HabitRow: delete only by swipe, with no visible path or undo required by DESIGN.md",
+        "FocusTimer: raw 48-point timer with proportional digits instead of type.metric",
+        "FocusTimer: infinite pulse ignores reduced motion",
+        "FocusTimer: timer text in a fixed 240-point ring overflows at large text sizes",
+        "StatsCard: padding 12 plus border and shadow violate the DESIGN.md card rule",
+        "EditHabitSheet: placeholder-only label",
+        "EditHabitSheet: backdrop or back closes without saving and without Cancel or unsaved-change confirmation; field state also persists stale into the next open (either reading counts)",
+        "EditHabitSheet: custom transparent Modal instead of the native form sheet DESIGN.md requires",
+        "EditHabitSheet: no keyboard avoidance or bottom inset, so the keyboard can cover the field and Save"
+      ],
+      "traps": [
+        "TabBar label maxFontSizeMultiplier 1.5 is an accepted DESIGN.md exception",
+        "FocusTimer play/pause icon has hitSlop 12, giving a 48-point target, and an accessible name",
+        "HabitRow checkbox icon has hitSlop 10, giving a 48-point target"
+      ],
+      "acceptance": [
+        "Reports at least 11 of the 13 seeded defects",
+        "Reports none of the three traps as a defect",
+        "States a computed contrast ratio for the streak text rather than an estimate",
+        "Groups findings by root cause and states that nothing was rendered"
+      ]
+    },
+    {
       "id": "web-design-button-spacing",
       "skill": "yb-web-design-system",
       "prompt": "In this newsletter form the Subscribe button looks a little shorter than the email field beside it, and its padding feels off. Tell me the exact correction. Do not edit files.",
