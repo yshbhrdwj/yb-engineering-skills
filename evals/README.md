@@ -1,6 +1,13 @@
 # Behavioral checks
 
-The ten cases in [cases.json](cases.json) are small, public, synthetic tasks. They exercise observable outcomes for every role, including a correct-code control inside the review fixture. They are separate from private historical trials and contain no customer code or prompts.
+The 22 cases in [cases.json](cases.json) are small, public, synthetic tasks. They exercise observable outcomes for every role, including a correct-code control inside the review fixture. They are separate from private historical trials and contain no customer code or prompts.
+
+| Skill | Cases |
+| --- | --- |
+| Ten original roles | One each, ids without the `web-design-` prefix |
+| `yb-web-design-system` | Twelve `web-design-*` cases: button spacing, type hierarchy, responsive navigation, premium landing page, SaaS dashboard, trading screen, site redesign, checkout form, modal, layout failure, cross-page consistency, greenfield system |
+
+The web-design fixtures under `fixtures/web-design/` are multi-file and seed real defects beside traps (correct code that looks wrong). The hidden acceptance list is the answer key: score recall of seeded defects, false positives on traps, and an efficiency outcome (mode chosen, references loaded, no invented evidence, no unrequested changes). Some keys are numeric, such as computed contrast ratios; recompute them rather than trusting a runner's arithmetic.
 
 ## Run a controlled comparison
 

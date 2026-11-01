@@ -1,6 +1,6 @@
 # Validation and evidence
 
-Updated 1 November 2026. Ten roles, each packaged for Claude Code and Codex. Evidence below distinguishes packaging and deterministic helper tests from observed reasoning behavior and host integration.
+Updated 1 November 2026; `yb-web-design-system` added 2 November 2026 (see the dated section at the end). Eleven roles, each packaged for Claude Code and Codex. Evidence below distinguishes packaging and deterministic helper tests from observed reasoning behavior and host integration.
 
 ## Deterministic checks
 
@@ -39,3 +39,15 @@ The later [evidence audit](docs/evidence/gemini-review-audit.md) distinguishes r
 The merged code reviewer now explicitly checks authorization, tenant isolation and sensitive-data exposure. Claude frontend review uses a foreground general-purpose fork so browser-capable tools can be available; it remains report-only by instructions and host permissions, not a tool-enforced read-only sandbox. The validator checks this per-role configuration. Code/security forks remain Explore. Generic skill invocation defaults are unchanged; discovery does not authorize an external action, and allowed-tools is not a restrictive allowlist.
 
 Earlier forward checks and native smoke results above identify their original candidate. They have not been replayed as a full native-host matrix for these instruction changes. The current local regression pass is on macOS; Windows runner/process changes have mocked coverage and need native confirmation. CI remains disabled. No new model-backed benchmarking, GitHub mutation or live PR merge was part of remediation.
+
+## yb-web-design-system addition (2 November 2026)
+
+Validated on macOS at branch `claude/yb-web-design-system`, base `4fd5548`.
+
+- `python3 scripts/validate.py`: `Validated 11 skills for each platform: names, metadata, footers, shared content, references, payloads, and local Markdown links.`
+- `python3 -m unittest discover -s tests`: `Ran 138 tests` … `OK`. The test count is unchanged; the package test now expects eleven skills, and the catalog test requires the new skill's cases and fixtures.
+- `python3 -m pytest tests -q`: not run, because pytest is not installed (`No module named pytest`). No dependency was added.
+- `python3 scripts/package.py --output-dir <scratch>`: both archives were created with 11 `SKILL.md` files and the skill's 13 references (plus `agents/openai.yaml` in Codex).
+- `python3 scripts/install.py --target claude-code --project <scratch>` installed the skill under `.claude/skills/yb-web-design-system`. A headless Claude Code 2.1.301 listing in that project stopped with `OAuth session expired and could not be refreshed`, so native discovery of the new skill was not observed.
+- Behavior: nine matched runs (three cases, three arms, one repetition) are recorded in the [evidence file](docs/evidence/2026-11-02-web-design-evals.md), with failures and limitations. The other nine new cases have fixtures and hidden criteria but were not run. No browser rendering, screenshot, screen-reader, or performance measurement was taken for this skill.
+
