@@ -1,0 +1,8 @@
+.input {
+  box-sizing: border-box;
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: var(--border) solid var(--color-border-strong);
+  border-radius: var(--radius-2);
+  font-size: var(--font-size-control);
+}

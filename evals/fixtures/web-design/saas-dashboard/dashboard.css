@@ -1,0 +1,24 @@
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; background: var(--color-bg); }
+.sidebar { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); }
+.sidebar [aria-current="page"] { font-weight: 600; border-inline-start: 3px solid var(--color-accent); }
+
+.hero {
+  height: 240px;
+  padding: 48px;
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  color: #fff;
+  border-radius: var(--radius-card);
+}
+.hero h1 { font-size: 56px; }
+.cta { background: var(--color-accent); color: #fff; padding: 16px 32px; border-radius: 999px; }
+
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin: 48px 0; }
+.kpi { padding: 40px; background: var(--color-surface); border-radius: var(--radius-card); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); }
+.kpi .value { display: block; font-size: 64px; color: var(--color-accent); }
+
+.shipments { width: 100%; border-collapse: collapse; background: var(--color-surface); }
+.shipments tr { height: var(--row-height); }
+.shipments td, .shipments th { text-align: left; padding: 0 var(--space-3); }
+.shipments th { color: var(--color-accent); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.dot-ok { background: #16a34a; } .dot-late { background: #dc2626; } .dot-held { background: #f59e0b; }

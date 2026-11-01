@@ -1,0 +1,14 @@
+<ul class="projects">
+  <li>Q3 launch plan <button type="button" class="delete" data-id="42">Delete</button></li>
+  <li>Hiring pipeline <button type="button" class="delete" data-id="43">Delete</button></li>
+</ul>
+
+<div class="overlay" id="overlay" hidden></div>
+<div class="modal" id="confirm" aria-labelledby="confirm-title" hidden>
+  <span class="close" onclick="closeModal()">&times;</span>
+  <h2 id="confirm-title">Delete project?</h2>
+  <p>This permanently removes the project and its 14 tasks for everyone on the team.</p>
+  <button type="button" onclick="closeModal()">Cancel</button>
+  <button type="button" class="danger" id="confirm-delete">OK</button>
+</div>
+<script src="modal.js"></script>

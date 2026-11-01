@@ -1,0 +1,4 @@
+interface:
+  display_name: "YB Web Design System"
+  short_description: "Set web design direction, tokens, and component specs"
+  default_prompt: "Use $yb-web-design-system to set the design direction and implementation-ready specifications for this website or web app."

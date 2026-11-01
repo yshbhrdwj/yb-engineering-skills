@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Harbor &amp; Pine Physiotherapy</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="/js/analytics.js" defer></script>
+</head>
+<body>
+  <header><a href="/">Home</a><a href="/about.html">About</a><a href="/services">Services</a><a href="#book">Book</a></header>
+  <div class="carousel" data-autoplay="3000">
+    <img src="/img/clinic-1.jpg" alt=""><img src="/img/clinic-2.jpg" alt=""><img src="/img/clinic-3.jpg" alt="">
+  </div>
+  <h1>Welcome to Harbor &amp; Pine!!!</h1>
+  <h2>Your health is our passion</h2>
+  <div class="services">
+    <div class="service"><h3>Sports injuries</h3><p>Assessment and rehab for runners, climbers and team sports.</p></div>
+    <div class="service"><h3>Back and neck pain</h3><p>Hands-on treatment and an exercise plan you can follow at home.</p></div>
+    <div class="service"><h3>Post-surgery rehab</h3><p>Programs coordinated with your surgeon after knee, hip and shoulder surgery.</p></div>
+  </div>
+  <section id="book">
+    <h2>Book an appointment</h2>
+    <form action="/api/book" method="post">
+      <input name="name" placeholder="Name">
+      <input name="phone" placeholder="Phone">
+      <select name="service"><option>Sports injuries</option><option>Back and neck pain</option><option>Post-surgery rehab</option></select>
+      <button class="button" type="submit">Book now</button>
+    </form>
+  </section>
+  <footer>Harbor &amp; Pine Physiotherapy · 14 Quay Street · Open Mon–Sat 7:00–19:00 · Registered with the national physiotherapy board</footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --border: 1px;
+  --radius-2: 6px;
+  --control-height: 40px;
+  --font-size-control: 0.9375rem;
+  --line-height-control: 1.5rem; /* 24px */
+  --color-accent: #1d4ed8;
+  --color-on-accent: #ffffff;
+  --color-border-strong: #6b7280;
+  --color-text: #111827;
+}

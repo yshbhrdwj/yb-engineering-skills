@@ -1,0 +1,13 @@
+.site-header { display: flex; align-items: center; gap: 24px; padding: 0 32px; height: 64px; }
+.nav-list { display: flex; gap: 20px; list-style: none; }
+.has-sub { position: relative; }
+.has-sub .sub { display: none; position: absolute; top: 100%; }
+.has-sub:hover .sub { display: block; }
+.active { color: #2563eb; }
+.burger { display: none; cursor: pointer; font-size: 24px; }
+
+@media (max-width: 1024px) {
+  .nav-list, .search, .cta { display: none; }
+  .burger { display: block; }
+  .nav-open .nav-list { display: block; position: fixed; inset: 64px 0 0 0; background: #fff; }
+}

@@ -1,6 +1,6 @@
 ---
 name: yb-frontend-engineer
-description: "Design and implement screens, components, and flows with coherent visuals, accessible interactions, and rendered verification. Use for UI implementation, refinement, or redesign."
+description: "Design and implement screens, components, and flows with coherent visuals, accessible interactions, and rendered verification. Use to build or refine UI; web redesigns start at yb-web-design-system."
 argument-hint: "[screen, component, flow, or UI change]"
 ---
 

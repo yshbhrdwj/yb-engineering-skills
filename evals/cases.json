@@ -426,6 +426,206 @@
         "States a computed contrast ratio for the streak text rather than an estimate",
         "Groups findings by root cause and states that nothing was rendered"
       ]
+    },
+    {
+      "id": "web-design-button-spacing",
+      "skill": "yb-web-design-system",
+      "prompt": "In this newsletter form the Subscribe button looks a little shorter than the email field beside it, and its padding feels off. Tell me the exact correction. Do not edit files.",
+      "files": [
+        "fixtures/web-design/button-spacing/tokens.css",
+        "fixtures/web-design/button-spacing/input.css",
+        "fixtures/web-design/button-spacing/button.css",
+        "fixtures/web-design/button-spacing/newsletter.html"
+      ],
+      "acceptance": [
+        "Identifies that .btn-primary is 38px tall (24px line-height plus 7px padding twice) against the 40px --control-height input",
+        "Recommends token padding such as var(--space-2) var(--space-4), giving 40px and matching the secondary button's horizontal inset",
+        "Leaves .btn-secondary's calc(... - var(--border)) border compensation unchanged and does not call it a defect",
+        "Stays in micro mode: no audit, plan, new tokens, redesign, or playbook; output is recommendation, reason, verification",
+        "Does not claim a rendered check or screenshot that was not produced; labels any visual claim as code-based"
+      ]
+    },
+    {
+      "id": "web-design-type-hierarchy",
+      "skill": "yb-web-design-system",
+      "prompt": "The headings in this article feel muddled and long reads are tiring. Fix the typography hierarchy and give me the revised type rules. Do not edit files.",
+      "files": [
+        "fixtures/web-design/type-hierarchy/type.css",
+        "fixtures/web-design/type-hierarchy/article.html"
+      ],
+      "acceptance": [
+        "Finds at least six of: body line-height 1.2, body letter-spacing 0.02em, 1100px measure, h1 line-height 1.6, h2 and h3 differing only by color, heading margins larger below than above, missing tabular numerals in the stats table, px root font size overriding user preference",
+        "Does not flag the h1 -0.02em tracking, the uppercase tracked eyebrow, or the serif body family as defects",
+        "Delivers a role-based scale (named roles with size, weight, leading, tracking) applied through shared rules rather than per-element patches",
+        "Uses rem or another user-scalable unit and a measure around 65ch",
+        "Stays at component or page scope without loading playbooks or a redesign workflow, and labels visual claims as code-based"
+      ]
+    },
+    {
+      "id": "web-design-responsive-nav",
+      "skill": "yb-web-design-system",
+      "prompt": "Design the responsive main navigation component for our docs and marketing site. The current markup and CSS are attached. Give a component specification an engineer can build. Do not edit files.",
+      "files": [
+        "fixtures/web-design/responsive-nav/nav.html",
+        "fixtures/web-design/responsive-nav/nav.css"
+      ],
+      "acceptance": [
+        "Replaces role=menubar/menuitem with links in a list and disclosure buttons using aria-expanded for the Product submenu",
+        "Submenu opens by click and keyboard, closes with Escape returning focus to its button; hover is not the only way to open",
+        "Collapse point is set by when items stop fitting (content or container based, rem units) and intermediate widths are considered, not a fixed 1024px device width",
+        "Menu toggle is a named button; current page uses aria-current with a non-color indicator; search and the trial CTA stay reachable when collapsed",
+        "Keeps the existing skip link and nav aria-label; output follows the component contract without loading playbooks or redesign workflow"
+      ]
+    },
+    {
+      "id": "web-design-premium-landing",
+      "skill": "yb-web-design-system",
+      "prompt": "Design the landing page for this studio from the brief. Give me the direction and a specification the engineer can build. Do not edit files.",
+      "files": [
+        "fixtures/web-design/premium-landing/brief.md"
+      ],
+      "acceptance": [
+        "Direction is specific to affluent renovating homeowners and craft joinery (photography-led, restrained palette, considered type) with reasons, not a generic SaaS gradient hero",
+        "Uses only real proof: the two named quotes, 140 projects, real photos; invents no logos, awards, ratings, or client counts",
+        "Declines the daily-resetting countdown and the 500+ claim as dark patterns or false claims and offers honest alternatives",
+        "Composition answers what, who, proof, price from NOK 380,000, and one consultation CTA linking to the existing /consultation form",
+        "Loads website-vs-webapp and at most one playbook, gives an engineer handoff, and states no performance or conversion numbers it did not measure"
+      ]
+    },
+    {
+      "id": "web-design-saas-dashboard",
+      "skill": "yb-web-design-system",
+      "prompt": "Our operations team says this logistics dashboard feels like a marketing page. Set a new direction for this page and specify the changes. Do not edit files.",
+      "files": [
+        "fixtures/web-design/saas-dashboard/tokens.css",
+        "fixtures/web-design/saas-dashboard/dashboard.html",
+        "fixtures/web-design/saas-dashboard/dashboard.css"
+      ],
+      "acceptance": [
+        "Identifies landing composition in an app: gradient welcome hero, upsell CTA, oversized KPI numbers without comparison or timeframe, heavy shadows and 24px card radius",
+        "Keeps or strengthens the 32px compact table rows (offering density as a token or setting) rather than making the table spacious",
+        "Specifies right-aligned tabular numerals for numeric columns and status shown by text and icon, not colored dots alone",
+        "Removes the accent from decoration (table headers, KPI values) and reserves it for actions, selection, and exceptions",
+        "Keeps the existing sidebar with aria-current, changes values through tokens rather than new page overrides, and stays at page scope"
+      ]
+    },
+    {
+      "id": "web-design-trading",
+      "skill": "yb-web-design-system",
+      "prompt": "Refine the visual design of this trading screen for professional users who keep it open all day. Specify what to change and why. Do not edit files.",
+      "files": [
+        "fixtures/web-design/trading/trading.css",
+        "fixtures/web-design/trading/trading.html"
+      ],
+      "acceptance": [
+        "Computes or correctly reports contrast: --down #c0392b on #0e1117 is about 3.5:1 and --text-muted #5c6370 about 3.1:1, both below 4.5:1 for small text, while --up #1f9d55 passes at about 5.4:1; if not computed, says so",
+        "Flags direction conveyed by color alone and adds sign or arrow cues; keeps the change text signs already present",
+        "Specifies tabular numerals for prices and the order book, and replaces the infinite flash with a brief update cue honoring prefers-reduced-motion",
+        "Separates Buy and Sell by more than text color (fill, position, label) and adds an order confirmation summary",
+        "Keeps the dark theme and high density instead of turning it into a spacious consumer layout"
+      ]
+    },
+    {
+      "id": "web-design-site-redesign",
+      "skill": "yb-web-design-system",
+      "prompt": "I don't like my website. Redesign it.",
+      "files": [
+        "fixtures/web-design/site-redesign/site/index.html",
+        "fixtures/web-design/site-redesign/site/about.html",
+        "fixtures/web-design/site-redesign/site/styles.css"
+      ],
+      "acceptance": [
+        "States Mode 4 or a full redesign, audits what works and fails before proposing direction, and recommends one direction (or a few) tied to a physiotherapy clinic audience",
+        "Preserves URLs, page content, the /api/book form action and fields, the analytics script, and the founders and registration facts",
+        "Consolidates the five ad hoc blues into ramps and roles and defines type, spacing, surfaces, and component contracts",
+        "Flags the autoplaying carousel, placeholder-only booking labels, zoom restricted by maximum-scale=1, and centered body text as defects with corrections",
+        "Persists the system to a design document marked proposed until accepted, hands implementation to yb-frontend-engineer, and claims no screenshots or invented testimonials"
+      ]
+    },
+    {
+      "id": "web-design-complex-form",
+      "skill": "yb-web-design-system",
+      "prompt": "Redesign the UX of this checkout form and specify it for implementation. Do not edit files.",
+      "files": [
+        "fixtures/web-design/complex-form/checkout.html",
+        "fixtures/web-design/complex-form/checkout.js"
+      ],
+      "acceptance": [
+        "Requires visible associated labels, errors linked to fields with aria-describedby and aria-invalid, and focus moved to an error summary on failure",
+        "Adds a billing 'same as shipping' option citing WCAG 2.2 3.3.7 Redundant Entry, and replaces the three phone inputs with one tel field",
+        "Shows password rules before submission, keeps values after a failed submit instead of form.reset(), and does not silently disable Place order",
+        "Does not flag the correct autocomplete tokens, the delivery fieldset and legend, or blur-time validation as defects",
+        "Separates WCAG requirements from recommendations, makes no conformance claim, and stays at component or flow scope"
+      ]
+    },
+    {
+      "id": "web-design-accessible-modal",
+      "skill": "yb-web-design-system",
+      "prompt": "Specify an accessible delete-confirmation modal to replace this one. Do not edit files.",
+      "files": [
+        "fixtures/web-design/modal/modal.html",
+        "fixtures/web-design/modal/modal.js",
+        "fixtures/web-design/modal/modal.css"
+      ],
+      "acceptance": [
+        "Specifies native dialog with showModal() or role=dialog with aria-modal, keeping the correct aria-labelledby title",
+        "Defines initial focus, Tab containment, Escape to close, focus return to the triggering Delete button, and no background scroll",
+        "Replaces the span close control with a named button, restores a visible focus indicator, and labels the destructive action with its consequence instead of OK",
+        "Cites the APG dialog pattern and WCAG criteria without claiming conformance",
+        "Delivers a component contract only, with no page redesign, playbook, or invented test results"
+      ]
+    },
+    {
+      "id": "web-design-layout-failure",
+      "skill": "yb-web-design-system",
+      "prompt": "This pricing page breaks on phones and when zoomed. Diagnose the layout and specify the responsive rules. Do not edit files.",
+      "files": [
+        "fixtures/web-design/layout-failure/layout.css",
+        "fixtures/web-design/layout-failure/pricing.html"
+      ],
+      "acceptance": [
+        "Finds the fixed 1200px container, the repeat(3, 360px) grid, 100vh hero, the 120px sticky header at zoom, and nowrap on the long German plan name",
+        "Proposes fluid containers, an intrinsic grid such as repeat(auto-fit, minmax(min(100%, Xrem), 1fr)), svh or min-height, and a sticky header that shrinks or scrolls away with scroll-padding",
+        "Sets content-driven rem breakpoints and checks 320 CSS px reflow and 200% text",
+        "Does not flag the min-width: 0 card body or the scrollable comparison table region as defects",
+        "Labels findings as code-based without a browser and does not escalate to a full redesign"
+      ]
+    },
+    {
+      "id": "web-design-cross-page",
+      "skill": "yb-web-design-system",
+      "prompt": "Buttons and cards look different on the home, settings, and billing pages. Make them consistent. Do not edit files.",
+      "files": [
+        "fixtures/web-design/cross-page/DESIGN.md",
+        "fixtures/web-design/cross-page/tokens.css",
+        "fixtures/web-design/cross-page/home.css",
+        "fixtures/web-design/cross-page/settings.css",
+        "fixtures/web-design/cross-page/billing.css"
+      ],
+      "acceptance": [
+        "Reads DESIGN.md and tokens.css as the authority and identifies settings and billing values that diverge from it",
+        "Corrects through tokens or one shared button and card style rather than per-page tweaks, and removes the !important offset",
+        "Keeps the accepted 32px compact billing rows and the var(--color-danger) cancel button",
+        "Adds a decision-log entry to the existing DESIGN.md instead of creating a new design document",
+        "Does not regenerate the token set, propose a new visual direction, or load playbooks"
+      ]
+    },
+    {
+      "id": "web-design-system-greenfield",
+      "skill": "yb-web-design-system",
+      "prompt": "Create the design system for this new product from the accepted brief. Produce what the engineer needs to start building. Do not write application code.",
+      "files": [
+        "fixtures/web-design/design-system/brief.md",
+        "fixtures/web-design/design-system/package.json",
+        "fixtures/web-design/design-system/globals.css"
+      ],
+      "acceptance": [
+        "References UX-1 to UX-5 by ID and the open sign-in decision without re-deriving product goals",
+        "Expresses tokens for Next.js 16 and Tailwind v4 with @theme roles built from the #0B6E4F brand green, checking the green's contrast or saying it was not computed",
+        "Defines a status system with text and icon (UX-2), compact and comfortable density tokens (UX-5), and a customer status view that works at 360px (UX-4)",
+        "Covers first-release pages and their loading, empty, error, and permission states, and specifies contracts only for components those pages need",
+        "Persists a design document with status and decision log, hands off to yb-frontend-engineer, and loads foundations once without reading every playbook"
+      ]
     }
   ]
 }

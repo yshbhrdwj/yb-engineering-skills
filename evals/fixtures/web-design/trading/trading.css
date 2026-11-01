@@ -1,0 +1,22 @@
+:root {
+  --bg: #0e1117;
+  --text: #e6e6e6;
+  --text-muted: #5c6370;
+  --up: #1f9d55;
+  --down: #c0392b;
+  --surface: #161b22;
+}
+body { background: var(--bg); color: var(--text); font: 13px/1.35 Inter, system-ui, sans-serif; }
+.layout { display: grid; grid-template-columns: 280px 1fr 320px; gap: 1px; }
+.book td { font-size: 11px; padding: 2px 6px; }
+.book .bid { color: var(--up); }
+.book .ask { color: var(--down); }
+.quote .price { font-size: 28px; font-weight: 600; }
+.quote .change.up { color: var(--up); }
+.quote .change.down { color: var(--down); }
+.label, .timestamp { color: var(--text-muted); }
+.flash { animation: flash 1s infinite; }
+@keyframes flash { 50% { background: rgba(255, 255, 255, 0.15); } }
+.order button { width: 50%; padding: 8px; background: #2d333b; border: 0; }
+.order .buy { color: var(--up); }
+.order .sell { color: var(--down); }

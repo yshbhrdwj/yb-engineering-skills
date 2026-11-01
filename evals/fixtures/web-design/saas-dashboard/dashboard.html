@@ -1,0 +1,29 @@
+<div class="app">
+  <nav class="sidebar" aria-label="Main">
+    <a href="/shipments" aria-current="page">Shipments</a>
+    <a href="/exceptions">Exceptions</a>
+    <a href="/carriers">Carriers</a>
+    <a href="/reports">Reports</a>
+  </nav>
+  <main>
+    <section class="hero">
+      <h1>Welcome back, Dana! 🚀</h1>
+      <p>Your logistics, supercharged.</p>
+      <a class="cta" href="/upgrade">Upgrade to Pro</a>
+    </section>
+    <section class="kpis">
+      <div class="kpi"><span class="value">1,284</span><span class="label">Shipments</span></div>
+      <div class="kpi"><span class="value">37</span><span class="label">Delayed</span></div>
+      <div class="kpi"><span class="value">96.1%</span><span class="label">On time</span></div>
+    </section>
+    <table class="shipments">
+      <caption>Active shipments</caption>
+      <thead><tr><th scope="col">ID</th><th scope="col">Lane</th><th scope="col">ETA</th><th scope="col">Weight (kg)</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        <tr><td>SH-20931</td><td>Rotterdam → Lyon</td><td>14 Nov 09:30</td><td>1,240.5</td><td><span class="dot dot-late"></span></td></tr>
+        <tr><td>SH-20932</td><td>Hamburg → Milan</td><td>14 Nov 11:00</td><td>880.0</td><td><span class="dot dot-ok"></span></td></tr>
+        <tr><td>SH-20933</td><td>Antwerp → Basel</td><td>15 Nov 07:15</td><td>12,004.2</td><td><span class="dot dot-held"></span></td></tr>
+      </tbody>
+    </table>
+  </main>
+</div>
