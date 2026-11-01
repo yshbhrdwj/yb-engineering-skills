@@ -22,7 +22,7 @@ EXPECTED_NAMES = frozenset({
     "yb-code-reviewer", "yb-merge-pr",
     "yb-frontend-engineer", "yb-frontend-reviewer", "yb-product-strategist",
     "yb-qa-engineer", "yb-release-operator", "yb-security-privacy",
-    "yb-software-engineer", "yb-solution-architect",
+    "yb-software-engineer", "yb-solution-architect", "yb-web-design-system",
 })
 REVIEWERS = {"yb-code-reviewer", "yb-frontend-reviewer", "yb-security-privacy"}
 REVIEWER_AGENTS = {name: "general-purpose" if name == "yb-frontend-reviewer" else "Explore"
@@ -287,13 +287,13 @@ class Validator:
                 continue
             root = self.root / platform / "skills"
             if root.is_symlink() or not root.is_dir():
-                self.error(root, "expected a regular directory containing the ten skills")
+                self.error(root, "expected a regular directory containing the expected skills")
                 continue
             entries = {path.name: path for path in root.iterdir()}
             for name in sorted(EXPECTED_NAMES - entries.keys()):
                 self.error(root / name, "missing expected skill directory")
             for name in sorted(entries.keys() - EXPECTED_NAMES):
-                self.error(entries[name], "unexpected entry; this package must contain exactly the ten YB skills")
+                self.error(entries[name], "unexpected entry; this package must contain exactly the expected YB skills")
             for name in sorted(EXPECTED_NAMES & entries.keys()):
                 folder = entries[name]
                 if folder.is_symlink() or not folder.is_dir():
@@ -413,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print("Validated 10 skills for each platform: names, metadata, footers, shared content, references, payloads, and local Markdown links.")
+    print(f"Validated {len(EXPECTED_NAMES)} skills for each platform: names, metadata, footers, shared content, references, payloads, and local Markdown links.")
     return 0
 
 

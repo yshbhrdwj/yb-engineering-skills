@@ -1,0 +1,2 @@
+.btn { height: var(--control-height); border-radius: var(--radius-control); background: var(--color-accent); color: var(--color-on-accent); }
+.card { border-radius: var(--radius-card); }

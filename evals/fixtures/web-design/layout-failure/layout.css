@@ -1,0 +1,11 @@
+.header { position: sticky; top: 0; height: 120px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: #fff; }
+.container { width: 1200px; margin: 0 auto; }
+.hero { height: 100vh; display: grid; place-items: center; }
+.plans { display: grid; grid-template-columns: repeat(3, 360px); gap: 60px; }
+.plan-name { white-space: nowrap; font-size: 28px; }
+.card-body { min-width: 0; }
+.table-wrap { overflow-x: auto; }
+.compare { min-width: 720px; }
+@media (max-width: 768px) {
+  .plans { grid-template-columns: 1fr; }
+}

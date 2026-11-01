@@ -1,0 +1,9 @@
+:root {
+  --color-accent: #2f5bd3;
+  --color-on-accent: #ffffff;
+  --color-danger: #c62828;
+  --control-height: 40px;
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --row-compact: 32px;
+}

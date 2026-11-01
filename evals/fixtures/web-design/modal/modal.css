@@ -1,0 +1,5 @@
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); }
+.modal { position: fixed; top: 20%; left: 50%; transform: translateX(-50%); width: 480px; background: #fff; padding: 24px; border-radius: 8px; }
+.modal .close { position: absolute; top: 8px; right: 12px; font-size: 20px; cursor: pointer; }
+.danger { background: #b42318; color: #fff; }
+button:focus { outline: none; }

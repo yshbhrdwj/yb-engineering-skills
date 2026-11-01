@@ -1,0 +1,24 @@
+<form id="checkout" action="/api/orders" method="post" novalidate>
+  <div class="errors" id="errors"></div>
+  <h2>Shipping address</h2>
+  <input name="ship-name" placeholder="Full name *" autocomplete="shipping name">
+  <input name="ship-street" placeholder="Street address *" autocomplete="shipping street-address">
+  <input name="ship-postal" placeholder="Postal code *" autocomplete="shipping postal-code">
+  <input name="ship-city" placeholder="City *" autocomplete="shipping address-level2">
+  <h2>Billing address</h2>
+  <input name="bill-name" placeholder="Full name *" autocomplete="billing name">
+  <input name="bill-street" placeholder="Street address *" autocomplete="billing street-address">
+  <input name="bill-postal" placeholder="Postal code *" autocomplete="billing postal-code">
+  <input name="bill-city" placeholder="City *" autocomplete="billing address-level2">
+  <h2>Phone</h2>
+  <input name="tel-1" maxlength="3" size="3"> <input name="tel-2" maxlength="3" size="3"> <input name="tel-3" maxlength="4" size="4">
+  <fieldset>
+    <legend>Delivery method</legend>
+    <label><input type="radio" name="delivery" value="standard" checked> Standard (3–5 days, free)</label>
+    <label><input type="radio" name="delivery" value="express"> Express (next day, $9.00)</label>
+  </fieldset>
+  <h2>Create an account (optional)</h2>
+  <input name="password" type="password" placeholder="Password" autocomplete="new-password">
+  <button id="submit" type="submit" disabled>Place order</button>
+</form>
+<script src="checkout.js"></script>
