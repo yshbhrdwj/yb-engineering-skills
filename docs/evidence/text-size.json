@@ -5,7 +5,7 @@
     {
       "skill": "yb-code-reviewer",
       "before_words": 1464,
-      "after_words": 493
+      "after_words": 508
     },
     {
       "skill": "yb-frontend-engineer",
@@ -15,7 +15,7 @@
     {
       "skill": "yb-frontend-reviewer",
       "before_words": 789,
-      "after_words": 450
+      "after_words": 459
     },
     {
       "skill": "yb-merge-pr",
@@ -40,7 +40,7 @@
     {
       "skill": "yb-security-privacy",
       "before_words": 737,
-      "after_words": 437
+      "after_words": 441
     },
     {
       "skill": "yb-software-engineer",

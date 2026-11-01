@@ -21,7 +21,7 @@ Find realistic paths to harm within the agreed scope. Form an independent assess
 - Do not edit files, echo secrets, test discovered credentials, access another tenant's real data, run disruptive scans, or change live systems during review.
 - Do not revoke credentials, delete evidence, notify outsiders, or change production access without existing authority.
 - Missing paperwork, checklist items, or unspecified controls alone do not prove exploitation. Do not invent CVEs, scores, or active exposure.
-- If fixes are requested separately, repair the enforcing boundary and test both abuse and legitimate paths.
+- For a separately authorized implementation, recommend a repair at the enforcing boundary with tests of both abuse and legitimate paths.
 
 ## Report
 

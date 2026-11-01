@@ -27,6 +27,13 @@ def safe_path(value):
     path = Path(value).expanduser().absolute()
     if ".." in path.parts:
         raise InstallError("parent traversal is not allowed")
+    if sys.platform == "darwin":
+        for alias in (Path("/tmp"), Path("/var"), Path("/etc")):
+            if path == alias or alias in path.parents:
+                target = Path("/private") / alias.name
+                if alias.is_symlink() and alias.resolve(strict=True) == target:
+                    path = target / path.relative_to(alias)
+                break
     for part in (path, *path.parents):
         if part.is_symlink():
             raise InstallError(f"symlinks are not allowed: {part}")
@@ -38,6 +45,27 @@ def safe_path(value):
 def command_for(path):
     args = [sys.executable, str(path)]
     return subprocess.list2cmdline(args) if os.name == "nt" else shlex.join(args)
+
+
+def hook_python(executable=None, platform=None):
+    """Prefer Homebrew's verified stable opt link when launched from Cellar."""
+    value = executable or sys.executable
+    if (platform or sys.platform) != "darwin":
+        return value
+    path = Path(value)
+    parts = path.parts
+    if "Cellar" not in parts:
+        return value
+    index = parts.index("Cellar")
+    if len(parts) <= index + 3 or not re.fullmatch(r"python(?:@\d+(?:\.\d+)*)?", parts[index + 1]):
+        return value
+    stable = Path(*parts[:index]) / "opt" / parts[index + 1] / Path(*parts[index + 3:])
+    try:
+        if stable.is_file() and os.access(stable, os.X_OK) and stable.resolve(strict=True) == path.resolve(strict=True):
+            return str(stable)
+    except OSError:
+        pass
+    return value
 
 
 def owned(command, folder, home, args=None):
@@ -97,7 +125,7 @@ def updated_settings(original, folder, home):
             if group["hooks"]:
                 kept.append(group)
         file = FILES[0] if event == "PreToolUse" else FILES[1]
-        group = {"hooks": [{"type": "command", "command": sys.executable,
+        group = {"hooks": [{"type": "command", "command": hook_python(),
                              "args": [str(folder / file)], "onFailure": "block",
                              "timeout": 120 if event == "PreToolUse" else 330}]}
         if event == "PreToolUse":

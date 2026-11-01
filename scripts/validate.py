@@ -25,6 +25,8 @@ EXPECTED_NAMES = frozenset({
     "yb-software-engineer", "yb-solution-architect",
 })
 REVIEWERS = {"yb-code-reviewer", "yb-frontend-reviewer", "yb-security-privacy"}
+REVIEWER_AGENTS = {name: "general-purpose" if name == "yb-frontend-reviewer" else "Explore"
+                   for name in REVIEWERS}
 CLAUDE_FIELDS = {"argument-hint", "context", "agent", "background"}
 FOOTERS = {
     "codex": (
@@ -210,8 +212,8 @@ class Validator:
         if platform == "claude-code":
             if name in REVIEWERS:
                 if any(fields.get(key) != value for key, value in
-                       {"context": "fork", "agent": "Explore", "background": False}.items()):
-                    self.error(path, "reviewers require context: fork, agent: Explore, background: false")
+                       {"context": "fork", "agent": REVIEWER_AGENTS[name], "background": False}.items()):
+                    self.error(path, f"reviewers require context: fork, agent: {REVIEWER_AGENTS[name]}, background: false")
             elif fields.keys() & {"context", "agent", "background"}:
                 self.error(path, "forked reviewer fields belong only on reviewer skills")
         if fields.get("name") != name or not re.fullmatch(r"yb-[a-z0-9]+(?:-[a-z0-9]+)*", fields.get("name", "")):

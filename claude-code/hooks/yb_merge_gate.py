@@ -2,6 +2,7 @@
 """Claude PreToolUse guard for supported direct gh pr merge commands (read-only)."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -16,8 +17,8 @@ SHA = re.compile(r"[0-9a-fA-F]{40}")
 REPOSITORY = re.compile(r"(?:(?P<host>[a-zA-Z0-9.-]+)/)?(?P<owner>[A-Za-z0-9_.-]+)/(?P<name>[A-Za-z0-9_.-]+)")
 QUERY = """query($owner:String!,$name:String!,$number:Int!) {
  repository(owner:$owner,name:$name) { pullRequest(number:$number) {
- number state isDraft headRefOid mergeable mergeStateStatus author { login }
- reviews(first:100) { pageInfo { hasNextPage } nodes { state submittedAt author { login } commit { oid } } }
+ number state isDraft headRefOid mergeable mergeStateStatus author { __typename login }
+ reviews(first:100) { pageInfo { hasNextPage } nodes { state submittedAt author { __typename login } commit { oid } } }
  reviewThreads(first:100) { pageInfo { hasNextPage } nodes { isResolved } }
  } }
 }"""
@@ -29,6 +30,7 @@ class Block(Exception):
 
 def command_tokens(command):
     lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|()<>\n")
+    lexer.commenters = ""  # Shell comments are removed with token-boundary awareness below.
     lexer.whitespace = " \t\r"
     lexer.whitespace_split = True
     return list(lexer)
@@ -42,13 +44,59 @@ def gh_merge(tokens):
     if not remaining:
         return False
     executable = Path(remaining[0]).name
+    if executable == "$gh":  # Literal ANSI-C quoting ($'gh') is unsupported, not an escape.
+        executable = "gh"
     if executable in {"bash", "sh", "zsh", "dash", "fish"}:
-        for flag in ("-c", "-lc", "-ic"):
-            if flag in remaining and remaining.index(flag) + 1 < len(remaining):
-                return contains_merge(command_tokens(remaining[remaining.index(flag) + 1]))
+        for index, flag in enumerate(remaining[1:], 1):
+            if re.fullmatch(r"-[A-Za-z]*c[A-Za-z]*", flag) and index + 1 < len(remaining):
+                inner = strip_shell_comments(strip_quoted_heredocs(remaining[index + 1]))
+                return contains_merge(command_tokens(inner)) or substitution_contains_merge(inner)
         return False
-    if executable in {"command", "exec", "sudo", "env", "nohup", "time"}:
-        return any(gh_merge(remaining[i:]) for i in range(1, len(remaining)) if Path(remaining[i]).name == "gh")
+    if executable == "command":
+        index = 1
+        while index < len(remaining):
+            token = remaining[index]
+            if token == "--":
+                index += 1
+                break
+            if re.fullmatch(r"-[pVv]+", token):
+                if "v" in token or "V" in token:
+                    return False  # Only leading lookup options prevent execution.
+                index += 1
+                continue
+            break
+        return gh_merge(remaining[index:])
+    if executable in {"exec", "sudo", "env", "nohup", "time"}:
+        index = 1
+        value_flags = {
+            "env": {"-u", "--unset", "-C", "--chdir"}, "exec": {"-a"},
+            "sudo": {"-u", "--user", "-g", "--group", "-h", "--host", "-p", "--prompt", "-C"},
+            "time": {"-f", "--format", "-o", "--output"},
+        }.get(executable, set())
+        while index < len(remaining):
+            token = remaining[index]
+            if executable == "env":
+                split_value, following = None, index + 1
+                if token in {"-S", "--split-string"} and index + 1 < len(remaining):
+                    split_value, following = remaining[index + 1], index + 2
+                elif token.startswith("--split-string="):
+                    split_value = token.split("=", 1)[1]
+                elif token.startswith("-S") and len(token) > 2:
+                    split_value = token[2:]
+                if split_value is not None:
+                    split_tokens = command_tokens(strip_shell_comments(split_value))
+                    # env reparses split tokens as its own options/assignments
+                    # before choosing the executable; trailing argv is retained.
+                    return gh_merge(["env", *split_tokens, *remaining[following:]])
+            if token in value_flags:
+                index += 2
+            elif token.startswith("-") or re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*=.*", token):
+                index += 1
+            else:
+                return gh_merge(remaining[index:])
+        return False
+    if executable == "eval":
+        return contains_merge(command_tokens(strip_shell_comments(" ".join(remaining[1:]))))
     if executable != "gh":
         return False
     i = 1
@@ -85,19 +133,52 @@ def contains_merge(tokens):
     return False
 
 
+def strip_shell_comments(command):
+    """Ignore comment quotes while preserving quoted or word-internal # text."""
+    output, quote, index, word_start = [], None, 0, True
+    while index < len(command):
+        char = command[index]
+        if char == "\\" and quote != "'" and index + 1 < len(command):
+            output.append(command[index:index + 2])
+            if command[index + 1] != "\n":
+                word_start = False  # Escaped whitespace belongs to the current word.
+            index += 2
+            continue
+        if char == "#" and quote is None and word_start:
+            end = command.find("\n", index)
+            if end < 0:
+                break
+            index = end
+            continue
+        if char in {"'", '"'}:
+            if quote is None:
+                quote = char
+            elif quote == char:
+                quote = None
+            word_start = False
+        elif quote is None:
+            word_start = char.isspace() or char in ";&|()<>"
+        output.append(char)
+        index += 1
+    return "".join(output)
+
+
 def strip_quoted_heredocs(command):
     """Omit literal quoted heredoc bodies; leave unsupported forms conservative."""
     lines = command.splitlines(keepends=True)
     output, delimiters = [], []
     for line in lines:
         if delimiters:
-            if line.rstrip("\r\n") == delimiters[0]:
+            delimiter, strip_tabs = delimiters[0]
+            candidate = line.rstrip("\r\n").lstrip("\t") if strip_tabs else line.rstrip("\r\n")
+            if candidate == delimiter:
                 delimiters.pop(0)
             output.append("\n" if line.endswith("\n") else "")
             continue
         output.append(line)
         try:
-            lexer = shlex.shlex(line, posix=False, punctuation_chars=";&|()<>")
+            lexer = shlex.shlex(strip_shell_comments(line), posix=False, punctuation_chars=";&|()<>")
+            lexer.commenters = ""
             lexer.whitespace_split = True
             tokens = list(lexer)
         except ValueError:
@@ -106,8 +187,11 @@ def strip_quoted_heredocs(command):
         for index, token in enumerate(tokens[:-1]):
             if token == "<<":
                 delimiter = tokens[index + 1]
+                strip_tabs = delimiter.startswith("-")
+                if strip_tabs:
+                    delimiter = delimiter[1:] or (tokens[index + 2] if index + 2 < len(tokens) else "")
                 if len(delimiter) >= 3 and delimiter[0] in {"'", '"'} and delimiter[-1] == delimiter[0]:
-                    pending.append(delimiter[1:-1])
+                    pending.append((delimiter[1:-1], strip_tabs))
                 else:
                     pending = []
                     break
@@ -117,6 +201,7 @@ def strip_quoted_heredocs(command):
 
 def substitution_contains_merge(command):
     """Find literal merge invocations in expanding substitutions, not single quotes."""
+    command = strip_shell_comments(command)
     quote, index = None, 0
     while index < len(command):
         char = command[index]
@@ -145,7 +230,7 @@ def substitution_contains_merge(command):
                     break
                 else:
                     end += 1
-            inner = command[index + 1:end]
+            inner = strip_shell_comments(command[index + 1:end])
             try:
                 if contains_merge(command_tokens(inner)) or substitution_contains_merge(inner):
                     return True
@@ -162,7 +247,7 @@ def substitution_contains_merge(command):
                     continue
                 depth += (command[end] == "(") - (command[end] == ")")
                 end += 1
-            inner = command[index + 2:end - 1 if depth == 0 else end]
+            inner = strip_shell_comments(command[index + 2:end - 1 if depth == 0 else end])
             try:
                 if contains_merge(command_tokens(inner)) or substitution_contains_merge(inner):
                     return True
@@ -176,7 +261,7 @@ def substitution_contains_merge(command):
 
 
 def parse_command(command, environment):
-    command = strip_quoted_heredocs(command)
+    command = strip_shell_comments(strip_quoted_heredocs(command))
     if substitution_contains_merge(command):
         raise Block("merge commands in substitutions are unsupported; use one direct gh pr merge command")
     try:
@@ -325,6 +410,46 @@ def config_for(cwd):
     return {x.casefold() for x in reviewers}
 
 
+def actor_identity(actor):
+    """Keep bot and human namespaces distinct across GraphQL/REST spellings."""
+    if not isinstance(actor, dict):
+        raise Block("review evidence has no typed actor identity")
+    kind, login = actor.get("__typename"), actor.get("login")
+    if not isinstance(login, str) or not re.fullmatch(r"[A-Za-z0-9_-]+(?:\[bot\])?", login):
+        raise Block("review evidence has an invalid actor login")
+    login = login.casefold()
+    if kind == "Bot":
+        return login if login.endswith("[bot]") else login + "[bot]"
+    if kind == "User" and not login.endswith("[bot]"):
+        return login
+    raise Block("review evidence has an unknown or inconsistent actor type")
+
+
+def review_time(value):
+    if not isinstance(value, str):
+        raise Block("a decisive review is missing its submission time")
+    try:
+        instant = datetime.fromisoformat(value.removesuffix("Z") + ("+00:00" if value.endswith("Z") else ""))
+    except ValueError as exc:
+        raise Block("a decisive review has an invalid submission time") from exc
+    if instant.tzinfo is None or instant.utcoffset() is None:
+        raise Block("a decisive review time must include its timezone")
+    return instant.astimezone(timezone.utc)
+
+
+def current_branch(cwd, env):
+    try:
+        result = subprocess.run(["git", "symbolic-ref", "--quiet", "--short", "HEAD"],
+                                cwd=cwd, env=env, capture_output=True, text=True,
+                                timeout=5, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise Block("cannot resolve the current branch; pass a PR number or URL") from exc
+    branch = result.stdout.strip()
+    if result.returncode or not branch or branch.startswith("-") or any(c in branch for c in "\r\n"):
+        raise Block("no current branch is available; pass a PR number or URL")
+    return branch
+
+
 def validate_evidence(pr, trusted, expected_head):
     if not isinstance(pr, dict) or pr.get("state") != "OPEN" or pr.get("isDraft") is not False:
         raise Block("the PR must be open and ready for review")
@@ -335,25 +460,27 @@ def validate_evidence(pr, trusted, expected_head):
         raise Block("GitHub has not confirmed this PR is mergeable")
     if pr.get("mergeStateStatus") not in {"CLEAN", "HAS_HOOKS"}:
         raise Block("GitHub reports blocked, incomplete or nonpassing merge conditions")
-    latest = {}
+    latest, times = {}, {}
     for group in ("reviews", "reviewThreads"):
         data = pr.get(group)
         if not isinstance(data, dict) or data.get("pageInfo", {}).get("hasNextPage") is not False or not isinstance(data.get("nodes"), list):
             raise Block("review evidence is incomplete or exceeds the 100-item guard limit")
     if any(thread.get("isResolved") is not True for thread in pr["reviewThreads"]["nodes"]):
         raise Block("resolve and answer every review thread before merging")
-    for review in sorted(pr["reviews"]["nodes"], key=lambda x: x.get("submittedAt") or ""):
-        login = (review.get("author") or {}).get("login", "").casefold()
+    for review in pr["reviews"]["nodes"]:
         state = review.get("state")
         if state in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
-            if not login:
-                raise Block("a decisive review has no identifiable author")
-            latest[login] = review
+            login = actor_identity(review.get("author"))
+            submitted = review_time(review.get("submittedAt"))
+            if login in times and submitted == times[login]:
+                old = latest[login]
+                if (old.get("state"), old.get("commit")) != (state, review.get("commit")):
+                    raise Block("conflicting decisive reviews have the same submission time")
+            elif login not in times or submitted > times[login]:
+                latest[login], times[login] = review, submitted
     if any(x.get("state") == "CHANGES_REQUESTED" for x in latest.values()):
         raise Block("a reviewer still requests changes")
-    author = (pr.get("author") or {}).get("login", "").casefold()
-    if not author:
-        raise Block("the PR author identity is unavailable")
+    author = actor_identity(pr.get("author"))
     if not any(login in trusted and login != author and review.get("state") == "APPROVED"
                and (review.get("commit") or {}).get("oid", "").lower() == head
                for login, review in latest.items()):
@@ -391,7 +518,10 @@ def gate(payload, environment=None):
     host, owner, name = repository
     full_repo = f"{host}/{owner}/{name}"
     if number is None:
-        view = run_gh(["pr", "view", "--repo", full_repo, "--json", "number"], cwd, env)
+        # Unlike `gh pr merge`, `gh pr view --repo` requires a selector. Keep the
+        # resolved repository and explicitly select the actual checkout branch.
+        branch = current_branch(cwd, env)
+        view = run_gh(["pr", "view", branch, "--repo", full_repo, "--json", "number"], cwd, env)
         number = view.get("number")
     if not isinstance(number, int) or number <= 0:
         raise Block("a positive pull request number is required")

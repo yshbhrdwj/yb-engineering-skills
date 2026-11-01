@@ -143,6 +143,32 @@ class InstallTests(unittest.TestCase):
         self.assertTrue(self.skill(".claude", base=project).is_dir())
         self.assertEqual(list(self.home.iterdir()), [])
 
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_tmp_project_path_installs_without_resolving_alias(self):
+        with tempfile.TemporaryDirectory(prefix="yb-raw-alias-", dir="/tmp") as raw:
+            self.run_installer("--target", "codex", "--project", raw)
+            self.assertTrue((Path(raw) / ".agents/skills/yb-first/SKILL.md").is_file())
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_var_project_path_installs_without_resolving_alias(self):
+        if not str(self.root).startswith("/private/var/"):
+            self.skipTest("this temporary root is outside the /var system alias")
+        project = self.root / "var-project"
+        project.mkdir()
+        raw = str(project).replace("/private/var/", "/var/", 1)
+        self.run_installer("--target", "claude-code", "--project", raw)
+        self.assertTrue((Path(raw) / ".claude/skills/yb-first/SKILL.md").is_file())
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_tmp_alias_does_not_allow_nested_user_symlink(self):
+        with tempfile.TemporaryDirectory(prefix="yb-raw-link-", dir="/tmp") as raw:
+            real = Path(raw) / "real"
+            real.mkdir()
+            link = Path(raw) / "linked"
+            link.symlink_to(real, target_is_directory=True)
+            self.run_installer("--target", "codex", "--project", str(link), success=False)
+            self.assertEqual(list(real.iterdir()), [])
+
     def test_parent_traversal_is_rejected(self):
         project = self.root / "project"
         project.mkdir()

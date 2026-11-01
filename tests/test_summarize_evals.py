@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from contextlib import redirect_stderr
+import io
 
 SPEC = importlib.util.spec_from_file_location("summarize_evals", Path(__file__).resolve().parents[1] / "scripts/summarize_evals.py")
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -67,6 +69,48 @@ class SummarizeTests(unittest.TestCase):
         self.write("old_skill", "run_metadata.json", base)
         self.assertEqual(MODULE.summarize(self.root)["metadata_matched_pairs"], 1)
 
+    def test_asymmetric_metadata_is_excluded_even_without_known_value_conflict(self):
+        base = dict.fromkeys(MODULE.COMPARISON_KEYS, "pinned")
+        self.write("with_skill", "run_metadata.json", base)
+        self.assertEqual(MODULE.summarize(self.root)["pairs"], 0)
+        self.write("old_skill", "run_metadata.json", {k: v for k, v in base.items() if k != "model"})
+        self.assertEqual(MODULE.summarize(self.root)["pairs"], 0)
+
+    def test_equally_incomplete_metadata_remains_explicitly_descriptive(self):
+        for arm in ("with_skill", "old_skill"):
+            self.write(arm, "run_metadata.json", {"model": "same-model"})
+        result = MODULE.summarize(self.root)
+        self.assertEqual(result["pairs"], 1)
+        self.assertEqual(result["metadata_matched_pairs"], 0)
+        self.assertEqual(result["metadata_incomplete_pairs"], 1)
+
+    def test_invalid_metadata_values_do_not_qualify_as_complete_pins(self):
+        for arm in ("with_skill", "old_skill"):
+            self.write(arm, "run_metadata.json", dict.fromkeys(MODULE.COMPARISON_KEYS, []))
+        result = MODULE.summarize(self.root)
+        self.assertEqual(result["metadata_matched_pairs"], 0)
+        self.assertEqual(result["metadata_incomplete_pairs"], 1)
+
+    def test_runs_tsv_optional_header_and_blank_rows_are_not_runs(self):
+        for header in ("", "run_id\tcase_id\tarm\n"):
+            with self.subTest(header=header):
+                (self.root / "runs.tsv").write_text(header + "r1\tc1\twith_skill\n\n\t\t\nr2\tc1\told_skill\n")
+                self.assertEqual(MODULE.summarize(self.root)["registered_runs"], 2)
+
+    def test_cli_explains_missing_case_metadata_instead_of_silent_zero_pairs(self):
+        (self.case / "eval_metadata.json").unlink()
+        errors = io.StringIO()
+        with redirect_stderr(errors), self.assertRaises(SystemExit) as failure:
+            MODULE.main([str(self.root)])
+        self.assertEqual(failure.exception.code, 2)
+        self.assertIn("eval_metadata.json", errors.getvalue())
+
+    def test_invalid_case_metadata_is_reported_without_scoring_arms(self):
+        (self.case / "eval_metadata.json").write_text("not JSON")
+        result = MODULE.summarize(self.root)
+        self.assertEqual(result["pairs"], 0)
+        self.assertEqual(result["excluded"][0]["reason"], "invalid case metadata")
+
     def test_missing_or_invalid_metrics_do_not_become_zero(self):
         self.write("old_skill", "timing.json", {"total_tokens": -1, "total_duration_seconds": float("nan")})
         result = MODULE.summarize(self.root)
@@ -74,6 +118,17 @@ class SummarizeTests(unittest.TestCase):
         self.assertEqual(result["token_pairs"], 0)
         self.assertIsNone(result["recorded_tokens"]["change_percent"])
         self.assertEqual(result["time_pairs"], 0)
+
+    def test_huge_integer_metrics_are_unavailable_without_losing_outcome_pair(self):
+        self.write("old_skill", "timing.json", {
+            "total_tokens": 10 ** 400, "total_duration_seconds": 10 ** 400})
+        result = MODULE.summarize(self.root)
+        self.assertEqual(result["pairs"], 1)
+        self.assertEqual(result["new"]["passed"], 1)
+        self.assertEqual(result["token_pairs"], 0)
+        self.assertEqual(result["time_pairs"], 0)
+        self.assertIsNone(result["recorded_tokens"]["change_percent"])
+        self.assertIsNone(result["recorded_seconds"]["change_percent"])
 
     def test_anonymous_output_does_not_contain_content_or_case_name(self):
         (self.case / "old_skill/transcript.md").unlink()

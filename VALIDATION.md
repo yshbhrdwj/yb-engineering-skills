@@ -6,11 +6,11 @@ Updated 1 November 2026. Ten roles, each packaged for Claude Code and Codex. Evi
 
 The host-aware validator checks exact skill inventory, portable names/descriptions, Claude reviewer fork configuration, Codex UI metadata, matching task instructions and references, allowed payloads, and local Markdown links. It deliberately accepts a narrow authored YAML format rather than arbitrary YAML.
 
-The 102 locally passing regression tests exercise safe skill updates, backups and explicit migration; malformed metadata and platform drift; hook approval/target/CI logic with a stub GitHub CLI; project-only reviewer trust; Stop recursion, timeout, content caching and failures; hook installation preserving unrelated settings; evaluation accounting; and extracted bundle installation. All GitHub calls in the hook tests are local mocks; no test merges a live PR.
+The 138 locally passing regression tests exercise safe skill updates, backups and explicit migration; malformed metadata and platform drift; hook approval/target/CI logic with a stub GitHub CLI; project-only reviewer trust; Stop recursion, timeout, content caching and failures; hook installation preserving unrelated settings; evaluation accounting; and extracted bundle installation. All GitHub calls in the hook tests are local mocks; no test merges a live PR.
 
 The bundled skill-creator validator passes all ten Codex folders. Its generic Agent Skills schema rejects Claude Code runtime fields such as `argument-hint`, `context`, `agent` and `background`; the host-aware validator checks those fields against the [Claude Code reference](https://code.claude.com/docs/en/skills) instead. Passing these checks does not prove correct automatic selection or reasoning.
 
-The GitHub workflow runs validation, tests and packaging on Linux, macOS and Windows. POSIX shell-hook integration tests are explicitly skipped on native Windows; installer, validator and accounting tests remain portable. The Stop script convention requires a POSIX shell. Consult the actual workflow for the pushed commit's CI outcome.
+Automatic GitHub CI is disabled at the user’s request. The retained manual workflow defines validation, tests and packaging on Linux, macOS and Windows; its last run for commit `a026ec3` passed on all three. POSIX shell-hook integration tests are explicitly skipped on native Windows; installer, validator and accounting tests remain portable. The Stop script convention requires a POSIX shell. Consult the actual workflow for the pushed commit's CI outcome.
 
 ## Current behavioral checks
 
@@ -27,3 +27,11 @@ Claude Code `2.1.301` listed all ten project skills with user hooks and unrelate
 The earlier draft's saved and recovered trials are audited in [the historical report](docs/evidence/2026-11-01-eval-audit.md). Seventeen complete saved old/new comparisons passed 57/69 versus 58/69 assertions, with 4.21% more recorded tokens and 5.56% more summed time in the new arm. Weak assertions, one sample, plugin contamination and missing harness metadata prevent a causal performance claim. Those numbers do not score this revision.
 
 No controlled result establishes superiority over Ponytail. [Text-size reductions](TOKEN-EFFICIENCY.md) are measured separately from runtime costs. No production deployment, real payment/message, external user study, live-data exploit or full accessibility-conformance test was performed.
+
+## Local remediation after independent review
+
+The later [evidence audit](docs/evidence/gemini-review-audit.md) distinguishes reproducible findings from reporting and accounting errors. Remediation covers current-branch CLI lookup, typed bot/human identity, chronological decisive reviews, adversarial Bash cases, verified macOS system aliases, installed/project Stop configuration, Windows Bash dispatch and bounded termination, and evaluation metadata/metric handling. Tests use hermetic Git configuration, local stubs and disposable output directories. Native Bash oracle tests establish shell behavior without live GitHub calls. Packaging tests no longer update the checkout's dist directory.
+
+The merged code reviewer now explicitly checks authorization, tenant isolation and sensitive-data exposure. Claude frontend review uses a foreground general-purpose fork so browser-capable tools can be available; it remains report-only by instructions and host permissions, not a tool-enforced read-only sandbox. The validator checks this per-role configuration. Code/security forks remain Explore. Generic skill invocation defaults are unchanged; discovery does not authorize an external action, and allowed-tools is not a restrictive allowlist.
+
+Earlier forward checks and native smoke results above identify their original candidate. They have not been replayed as a full native-host matrix for these instruction changes. The current local regression pass is on macOS; Windows runner/process changes have mocked coverage and need native confirmation. CI remains disabled. No new model-backed benchmarking, GitHub mutation or live PR merge was part of remediation.

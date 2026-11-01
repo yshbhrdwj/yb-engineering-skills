@@ -8,6 +8,7 @@ Output never includes prompts, assertions, transcript text, or source paths.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
 from pathlib import Path
@@ -23,7 +24,12 @@ def read_json(path):
 
 
 def number(value):
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(value) and value >= 0
+    except OverflowError:
+        return False
 
 
 def load_arm(folder):
@@ -68,16 +74,24 @@ def load_arm(folder):
 def summarize(workspace, baseline="old_skill", anonymous=False):
     cases = sorted(p for p in Path(workspace).iterdir() if p.is_dir() and (p / "eval_metadata.json").is_file())
     result = {"cases": len(cases), "registered_runs": 0, "grading_files": 0, "pairs": 0,
-              "metadata_matched_pairs": 0, "new": {"passed": 0, "total": 0},
+              "metadata_matched_pairs": 0, "metadata_incomplete_pairs": 0,
+              "new": {"passed": 0, "total": 0},
               "baseline": {"passed": 0, "total": 0}, "token_pairs": 0, "time_pairs": 0,
               "recorded_tokens": {"new": 0, "baseline": 0}, "recorded_seconds": {"new": 0, "baseline": 0},
               "excluded": [], "interpretation": "Descriptive saved-run summary; not proof of a causal improvement or host integration."}
     runs = Path(workspace) / "runs.tsv"
     if runs.is_file():
-        result["registered_runs"] = sum(bool(line.strip()) for line in runs.read_text().splitlines())
+        with runs.open(encoding="utf-8-sig", newline="") as stream:
+            rows = [row for row in csv.reader(stream, delimiter="\t") if any(cell.strip() for cell in row)]
+        if rows and [cell.strip().lower() for cell in rows[0]] == ["run_id", "case_id", "arm"]:
+            rows = rows[1:]
+        result["registered_runs"] = len(rows)
     for index, case in enumerate(cases, 1):
         result["grading_files"] += sum((case / arm / "grading.json").is_file() for arm in ("with_skill", "old_skill", "without_skill"))
         label = f"case-{index:02d}" if anonymous else case.name
+        if not isinstance(read_json(case / "eval_metadata.json"), dict):
+            result["excluded"].append({"case": label, "reason": "invalid case metadata"})
+            continue
         if not (case / baseline).is_dir():
             result["excluded"].append({"case": label, "reason": "requested baseline absent"})
             continue
@@ -89,13 +103,18 @@ def summarize(workspace, baseline="old_skill", anonymous=False):
             result["excluded"].append({"case": label, "reason": "assertions differ"})
             continue
         metadata = [new["metadata"], old["metadata"]]
-        mismatch = any(key in metadata[0] and key in metadata[1] and metadata[0][key] != metadata[1][key] for key in COMPARISON_KEYS)
+        mismatch = any((key in metadata[0]) != (key in metadata[1])
+                       or metadata[0].get(key) != metadata[1].get(key)
+                       for key in COMPARISON_KEYS)
         if mismatch:
             result["excluded"].append({"case": label, "reason": "comparison metadata differs"})
             continue
         result["pairs"] += 1
-        if all(all(key in m and m[key] not in (None, "") for key in COMPARISON_KEYS) for m in metadata):
+        if all(all(isinstance(m.get(key), str) and m[key].strip()
+                   for key in COMPARISON_KEYS) for m in metadata):
             result["metadata_matched_pairs"] += 1
+        else:
+            result["metadata_incomplete_pairs"] += 1
         for name, arm in (("new", new), ("baseline", old)):
             for key in ("passed", "total"):
                 result[name][key] += arm[key]
@@ -119,7 +138,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if not args.workspace.is_dir():
         parser.error("workspace must be an existing directory")
-    output = json.dumps(summarize(args.workspace, args.baseline, args.anonymous), indent=2) + "\n"
+    result = summarize(args.workspace, args.baseline, args.anonymous)
+    if not result["cases"]:
+        parser.error("no cases found; expected <workspace>/<case>/eval_metadata.json and sibling arm directories")
+    output = json.dumps(result, indent=2) + "\n"
     if args.output:
         args.output.write_text(output, encoding="utf-8")
     else:

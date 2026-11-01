@@ -188,6 +188,60 @@ class HookInstallTests(unittest.TestCase):
         self.assertEqual(list(self.home.iterdir()), [])
         self.run_installer("--project", str(project), "--home", str(self.home), code=2)
 
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_tmp_project_alias_works_without_allowing_nested_links(self):
+        with tempfile.TemporaryDirectory(prefix="yb-hook-alias-", dir="/tmp") as raw:
+            self.run_installer("--project", raw)
+            self.assertTrue((Path(raw) / ".claude/hooks/yb_stop_check.py").is_file())
+            real = Path(raw) / "real"
+            real.mkdir()
+            link = Path(raw) / "linked"
+            link.symlink_to(real, target_is_directory=True)
+            self.run_installer("--project", str(link), code=1)
+            self.assertEqual(list(real.iterdir()), [])
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS root aliases")
+    def test_raw_var_project_alias_works(self):
+        if not str(self.root).startswith("/private/var/"):
+            self.skipTest("this temporary root is outside the /var system alias")
+        project = self.root / "var-project"
+        project.mkdir()
+        raw = str(project).replace("/private/var/", "/var/", 1)
+        self.run_installer("--project", raw)
+        self.assertTrue((Path(raw) / ".claude/hooks/yb_merge_gate.py").is_file())
+
+    def test_homebrew_cellar_interpreter_uses_verified_stable_opt_link(self):
+        if os.name == "nt":
+            self.skipTest("symlink creation privileges vary on Windows")
+        prefix = self.root / "brew"
+        cellar = prefix / "Cellar/python@3.14/3.14.4/bin/python3.14"
+        cellar.parent.mkdir(parents=True)
+        cellar.write_text("interpreter fixture")
+        cellar.chmod(0o755)
+        stable = prefix / "opt/python@3.14/bin/python3.14"
+        stable.parents[1].parent.mkdir(parents=True)
+        stable.parents[1].symlink_to(cellar.parents[1], target_is_directory=True)
+        self.assertEqual(INSTALLER.hook_python(str(cellar), platform="darwin"), str(stable))
+        self.assertEqual(INSTALLER.hook_python(str(cellar), platform="linux"), str(cellar))
+        self.assertEqual(INSTALLER.hook_python(str(stable), platform="darwin"), str(stable))
+
+    def test_homebrew_opt_link_to_different_interpreter_is_not_selected(self):
+        if os.name == "nt":
+            self.skipTest("symlink creation privileges vary on Windows")
+        prefix = self.root / "brew"
+        cellar = prefix / "Cellar/python@3.14/3.14.4/bin/python3.14"
+        cellar.parent.mkdir(parents=True)
+        cellar.write_text("interpreter fixture")
+        cellar.chmod(0o755)
+        wrong = prefix / "different/bin/python3.14"
+        wrong.parent.mkdir(parents=True)
+        wrong.write_text("different fixture")
+        wrong.chmod(0o755)
+        opt = prefix / "opt/python@3.14"
+        opt.parent.mkdir(parents=True)
+        opt.symlink_to(wrong.parents[1], target_is_directory=True)
+        self.assertEqual(INSTALLER.hook_python(str(cellar), platform="darwin"), str(cellar))
+
     def test_dry_run_update_does_not_create_backup_or_mutate(self):
         self.run_installer("--user", "--home", str(self.home))
         path = self.home / ".claude/hooks/yb_merge_gate.py"

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import signal
 import sys
@@ -81,6 +83,55 @@ def cache_path(root, session):
     return target
 
 
+def check_timeout(root):
+    """Load installation defaults, then the explicitly opted-in project's override."""
+    timeout = 120
+    installed = Path(__file__).resolve().parents[1] / "yb-hooks.json"
+    project = root / ".claude" / "yb-hooks.json"
+    for config in dict.fromkeys((installed, project)):
+        if not config.exists():
+            continue
+        try:
+            values = json.loads(config.read_text(encoding="utf-8"))
+        except (ValueError, OSError) as exc:
+            raise CheckError(f"invalid check configuration: {config}") from exc
+        if not isinstance(values, dict):
+            raise CheckError(f"{config} must contain a JSON object")
+        timeout = values.get("check_timeout_seconds", timeout)
+    if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
+            or not 1 <= timeout <= 300 or not math.isfinite(timeout)):
+        raise CheckError("check_timeout_seconds must be finite and between 1 and 300")
+    return timeout
+
+
+def check_command(check, platform=None):
+    platform = platform or os.name
+    if platform != "nt":
+        return [str(check)]
+    bash = os.environ.get("CLAUDE_CODE_GIT_BASH_PATH") or shutil.which("bash")
+    if not bash:
+        raise CheckError(".claude/yb-check.sh requires Bash on Windows; configure Git Bash or run project checks manually")
+    return [bash, str(check)]
+
+
+def terminate_check(process, platform=None):
+    if (platform or os.name) == "nt":
+        # Killing only bash leaves its check/test children running on Windows.
+        try:
+            subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                           capture_output=True, timeout=5, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        if process.poll() is None:
+            process.kill()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait(timeout=5)
+
+
 def stop(payload):
     if payload.get("stop_hook_active") is True:
         print("yb-stop-check: retry guard active; report any unresolved check failure honestly", file=sys.stderr)
@@ -93,20 +144,10 @@ def stop(payload):
     except CheckError:
         return
     check = root / ".claude" / "yb-check.sh"
-    if check.is_symlink() or not check.resolve().is_relative_to(root.resolve()) or not check.is_file() or not os.access(check, os.X_OK):
+    if (check.is_symlink() or not check.resolve().is_relative_to(root.resolve()) or not check.is_file()
+            or (os.name != "nt" and not os.access(check, os.X_OK))):
         return
-    timeout = 120
-    config = root / ".claude" / "yb-hooks.json"
-    if config.is_file():
-        try:
-            values = json.loads(config.read_text())
-            if not isinstance(values, dict):
-                raise CheckError(".claude/yb-hooks.json must be an object")
-            timeout = values.get("check_timeout_seconds", timeout)
-        except (ValueError, OSError) as exc:
-            raise CheckError("invalid .claude/yb-hooks.json") from exc
-    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not 1 <= timeout <= 300:
-        raise CheckError("check_timeout_seconds must be between 1 and 300")
+    timeout = check_timeout(root)
     cacheable = not dirty_submodules(root)
     before = fingerprint(root, check) if cacheable else None
     cache = cache_path(root, payload.get("session_id", ""))
@@ -120,16 +161,12 @@ def stop(payload):
         cache.unlink(missing_ok=True)
     try:
         with tempfile.TemporaryFile() as output_file:
-            process = subprocess.Popen([str(check)], cwd=root, stdout=output_file,
+            process = subprocess.Popen(check_command(check), cwd=root, stdout=output_file,
                                        stderr=subprocess.STDOUT, start_new_session=os.name != "nt")
             try:
                 code = process.wait(timeout=timeout)
             except subprocess.TimeoutExpired:
-                if os.name != "nt":
-                    os.killpg(process.pid, signal.SIGKILL)
-                else:
-                    process.kill()
-                process.wait(timeout=5)
+                terminate_check(process)
                 raise CheckError(f".claude/yb-check.sh exceeded {timeout:g}s; report and resolve the timeout")
             output_file.seek(0, os.SEEK_END)
             output_file.seek(max(0, output_file.tell() - 12000))

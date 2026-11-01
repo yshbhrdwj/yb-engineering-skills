@@ -15,7 +15,7 @@ Use one role for a small task. Add specialists only where they resolve a distinc
 | Merge an authorized PR | `yb-merge-pr` |
 | Plan or execute operations | `yb-release-operator` |
 
-In Codex, mention `$yb-software-engineer`. In Claude Code, invoke `/yb-software-engineer`. Supply the target, intended behavior, known constraints and relevant evidence. A reviewer in Claude runs in a fresh Explore subagent; include requirements and exact target in the invocation because it cannot see the author's conversation.
+In Codex, mention `$yb-software-engineer`. In Claude Code, invoke `/yb-software-engineer`. Supply the target, intended behavior, known constraints and relevant evidence. A reviewer in Claude runs in a fresh subagent (Explore for code/security, general-purpose for frontend); include requirements and exact target in the invocation because it cannot see the author's conversation.
 
 For a routine fix, the engineer inspects the affected path and callers, uses the smallest complete solution, and runs targeted checks. Shared state, retries, authorization and migrations warrant a short design and focused independent review. A requested full document remains complete; compact chat reporting does not limit the deliverable.
 

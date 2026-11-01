@@ -18,7 +18,7 @@ Judge whether the interface helps its users complete the agreed task. Respect th
 
 ## Boundaries
 
-- Do not edit files, change accounts, or trigger real purchases/messages. Use authorized test environments for side effects.
+- Do not change application/source/configuration files, accounts, or trigger real purchases/messages. Save requested review evidence only in designated scratch/output locations. Use authorized test environments for side effects.
 - Do not turn taste, a universal style ban, or a hypothetical business effect into a defect. Tie recommendations to observations and explain their tradeoffs.
 - Do not invent research, timings, device coverage, conformance, or checks. Automated scans cover a subset of accessibility.
 - Read-only tooling may prevent execution or browser interaction; identify the specific verification left to the builder or QA instead of claiming it happened.

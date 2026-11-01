@@ -16,12 +16,21 @@ HEAD = "a" * 40
 OTHER = "b" * 40
 
 
+def isolated_git_environment():
+    # A test must never inherit an alternate real index/worktree or user signing
+    # policy. Shell oracle checks also avoid arbitrary shell startup files.
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_") and key not in {"BASH_ENV", "ENV"}}
+    env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0")
+    return env
+
+
 def evidence():
     return {"number": 7, "state": "OPEN", "isDraft": False, "headRefOid": HEAD,
-            "mergeable": "MERGEABLE", "mergeStateStatus": "CLEAN", "author": {"login": "author"},
+            "mergeable": "MERGEABLE", "mergeStateStatus": "CLEAN", "author": {"__typename": "User", "login": "author"},
             "reviews": {"pageInfo": {"hasNextPage": False}, "nodes": [
                 {"state": "APPROVED", "submittedAt": "2026-11-01T10:00:00Z",
-                 "author": {"login": "trusted[bot]"}, "commit": {"oid": HEAD}}]},
+                 "author": {"__typename": "Bot", "login": "trusted[bot]"}, "commit": {"oid": HEAD}}]},
             "reviewThreads": {"pageInfo": {"hasNextPage": False}, "nodes": []}}
 
 
@@ -33,7 +42,8 @@ class MergeHookTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.repo = self.root / "project"
         self.repo.mkdir()
-        subprocess.run(["git", "init", "-q", str(self.repo)], check=True)
+        self.git_env = isolated_git_environment()
+        subprocess.run(["git", "init", "-q", "-b", "feature/checkout", str(self.repo)], env=self.git_env, check=True)
         (self.repo / ".claude").mkdir()
         (self.repo / ".claude/yb-hooks.json").write_text(json.dumps({"trusted_reviewers": ["trusted[bot]"]}))
         self.fixture = self.root / "fixture.json"
@@ -47,10 +57,20 @@ from pathlib import Path
 f=json.loads(Path(os.environ['MOCK_FIXTURE']).read_text())
 a=sys.argv[1:]
 with open(os.environ['MOCK_LOG'],'a') as log:log.write(json.dumps(a)+'\n')
-if a[:2]==['api','graphql']: stage='graphql'; out={'data':{'repository':{'pullRequest':f['pr']}}}
+if a[:2]==['api','graphql']:
+ stage='graphql';pr=f['pr']
+ # Match the API selection contract: unrequested actor types are not returned.
+ if '__typename' not in next((x for x in a if x.startswith('query=')), ''):
+  pr.get('author',{}).pop('__typename',None)
+  for review in pr.get('reviews',{}).get('nodes',[]):review.get('author',{}).pop('__typename',None)
+ out={'data':{'repository':{'pullRequest':pr}}}
 elif a[:2]==['pr','checks']: stage='checks'; out=f.get('checks',[{'name':'test','state':'SUCCESS','bucket':'pass'}])
 elif a[:2]==['repo','view']:stage='repo';out={'nameWithOwner':'local/repo','url':'https://github.com/local/repo'}
-elif a[:2]==['pr','view'] and a[-1]=='number':stage='number';out={'number':7}
+elif a[:2]==['pr','view'] and a[-1]=='number':
+ # gh requires a positional target whenever --repo is present.
+ if '--repo' in a and (len(a)<3 or a[2].startswith('-')):
+  print('argument required when using the --repo flag',file=sys.stderr);sys.exit(1)
+ stage='number';out={'number':7}
 elif a[:2]==['pr','view']:stage='fresh';out={'headRefOid':f.get('fresh',f['pr']['headRefOid'])}
 else:sys.exit(90)
 if f.get('fail')==stage:
@@ -58,7 +78,7 @@ if f.get('fail')==stage:
 print(json.dumps(out))
 ''')
         executable.chmod(0o755)
-        self.env = dict(os.environ, PATH=str(self.bin) + os.pathsep + os.environ.get("PATH", ""),
+        self.env = dict(self.git_env, PATH=str(self.bin) + os.pathsep + os.environ.get("PATH", ""),
                         MOCK_FIXTURE=str(self.fixture), MOCK_LOG=str(self.log), PYTHONDONTWRITEBYTECODE="1")
         self.env.pop("GH_REPO", None)
         self.env.pop("GH_HOST", None)
@@ -89,7 +109,7 @@ print(json.dumps(out))
 
     def test_negative_dismissed_untrusted_self_and_stale_reviews_block(self):
         for change in ({"state": "CHANGES_REQUESTED"}, {"state": "DISMISSED"},
-                       {"author": {"login": "stranger"}}, {"author": {"login": "author"}},
+                       {"author": {"__typename": "User", "login": "stranger"}}, {"author": {"__typename": "User", "login": "author"}},
                        {"commit": {"oid": OTHER}}, {"state": "COMMENTED"}):
             with self.subTest(change=change):
                 self.data["pr"] = evidence()
@@ -110,7 +130,7 @@ print(json.dumps(out))
     def test_comments_do_not_erase_a_changes_requested_review(self):
         nodes = self.data["pr"]["reviews"]["nodes"]
         negative = deepcopy(nodes[0])
-        negative.update(state="CHANGES_REQUESTED", author={"login": "another"})
+        negative.update(state="CHANGES_REQUESTED", author={"__typename": "User", "login": "another"})
         comment = deepcopy(negative)
         comment.update(state="COMMENTED", submittedAt="2026-11-01T12:00:00Z")
         nodes.extend([negative, comment])
@@ -119,7 +139,7 @@ print(json.dumps(out))
     def test_issue_comment_or_reaction_never_substitutes_for_approval(self):
         self.data["pr"]["reviews"]["nodes"] = []
         for body in ("Didn't find any major issues", "I found major issues", ":+1:"):
-            self.data["comments"] = [{"body": body, "author": {"login": "trusted[bot]"}}]
+            self.data["comments"] = [{"body": body, "author": {"__typename": "Bot", "login": "trusted[bot]"}}]
             self.run_hook(code=2)
         self.assertFalse(any("comments" in call for call in self.calls()))
 
@@ -224,7 +244,148 @@ print(json.dumps(out))
     def test_inherited_repo_and_omitted_number_resolve_without_local_repo_guess(self):
         self.env["GH_REPO"] = "other/repo"
         self.run_hook(f"gh pr merge --match-head-commit {HEAD}")
-        self.assertEqual(self.calls()[0], ["pr", "view", "--repo", "github.com/other/repo", "--json", "number"])
+        self.assertEqual(self.calls()[0], ["pr", "view", "feature/checkout", "--repo", "github.com/other/repo", "--json", "number"])
+
+    def test_current_branch_resolution_keeps_explicit_repository_and_branch(self):
+        self.run_hook(f"gh pr merge -R example.com/other/repo --match-head-commit {HEAD}")
+        self.assertEqual(self.calls()[0], ["pr", "view", "feature/checkout", "--repo", "example.com/other/repo", "--json", "number"])
+        self.assertIn("owner=other", self.calls()[1])
+        self.assertIn("example.com", self.calls()[1])
+
+    def test_graphql_bot_identity_is_typed_and_cannot_be_impersonated(self):
+        author = self.data["pr"]["reviews"]["nodes"][0]["author"]
+        author.update(__typename="Bot", login="trusted")
+        self.run_hook()
+        for change in ({"__typename": "User", "login": "trusted"},
+                       {"__typename": "User", "login": "trusted[bot]"},
+                       {"__typename": "Unknown", "login": "trusted[bot]"},
+                       {"login": "trusted[bot]"}):
+            with self.subTest(change=change):
+                self.data["pr"]["reviews"]["nodes"][0]["author"] = change
+                self.run_hook(code=2)
+
+    def test_human_trust_is_distinct_from_bot_trust_and_self_review(self):
+        config = self.repo / ".claude/yb-hooks.json"
+        config.write_text('{"trusted_reviewers":["trusted"]}')
+        review = self.data["pr"]["reviews"]["nodes"][0]
+        review["author"] = {"__typename": "User", "login": "trusted"}
+        self.run_hook()
+        review["author"] = {"__typename": "Bot", "login": "trusted"}
+        self.run_hook(code=2)
+        config.write_text('{"trusted_reviewers":["trusted[bot]"]}')
+        self.data["pr"]["author"] = {"__typename": "Bot", "login": "trusted"}
+        self.run_hook(code=2)
+
+    def test_human_and_bot_with_same_slug_do_not_overwrite_each_other(self):
+        bot = self.data["pr"]["reviews"]["nodes"][0]
+        bot["author"] = {"__typename": "Bot", "login": "trusted"}
+        negative = deepcopy(bot)
+        negative.update(state="CHANGES_REQUESTED", submittedAt="2026-11-01T09:00:00Z",
+                        author={"__typename": "User", "login": "trusted"})
+        self.data["pr"]["reviews"]["nodes"].append(negative)
+        self.run_hook(code=2)
+
+    def test_review_timestamps_are_compared_as_instants(self):
+        for newer in ("2026-11-01T10:00:00.500Z", "2026-11-01T05:30:00-05:00"):
+            with self.subTest(newer=newer):
+                self.data = {"pr": evidence()}
+                later = deepcopy(self.data["pr"]["reviews"]["nodes"][0])
+                later.update(state="CHANGES_REQUESTED", submittedAt=newer)
+                self.data["pr"]["reviews"]["nodes"].append(later)
+                self.run_hook(code=2)
+
+    def test_incomplete_or_ambiguous_decisive_review_times_block(self):
+        for timestamp in (None, "", "not-a-time", "2026-11-01T10:00:00"):
+            with self.subTest(timestamp=timestamp):
+                self.data = {"pr": evidence()}
+                self.data["pr"]["reviews"]["nodes"][0]["submittedAt"] = timestamp
+                self.run_hook(code=2)
+        self.data = {"pr": evidence()}
+        conflict = deepcopy(self.data["pr"]["reviews"]["nodes"][0])
+        conflict["state"] = "CHANGES_REQUESTED"
+        # Approval appears last; equal timestamps do not prove it superseded a veto.
+        self.data["pr"]["reviews"]["nodes"].insert(0, conflict)
+        self.run_hook(code=2)
+
+    def test_nested_wrappers_combined_shell_flags_and_comment_substitutions_block(self):
+        direct = "gh pr merge 7 --squash --admin"
+        for command in (f'env bash -c "{direct}"', f'command bash -c "{direct}"',
+                        f'env command bash -ec "{direct}"', f'sh -xc "{direct}"',
+                        f'# don\'t bypass the gate\necho "$({direct})"',
+                        f'eval "{direct}"', "$'gh' pr merge 7 --squash --admin"):
+            with self.subTest(command=command):
+                self.run_hook(command, code=2)
+        self.assertEqual(self.calls(), [])
+
+    def test_literal_tab_stripping_heredoc_is_data_and_following_merge_is_guarded(self):
+        for prose in ("cat <<-'EOF'\n\tgh pr merge 7 --squash\n\tEOF",
+                      "cat <<- 'EOF'\n\tgh pr merge 7 --squash\n\tEOF",
+                      "cat <<'EOF' # don't parse this apostrophe\ngh pr merge\nEOF"):
+            self.run_hook(prose)
+        self.assertEqual(self.calls(), [])
+        self.run_hook(prose + f"\ngh pr merge 7 --match-head-commit {HEAD}", code=2)
+
+    def test_comment_boundaries_and_nonexecuting_wrapper_controls(self):
+        self.run_hook("echo token#literal; gh pr merge 7 --admin", code=2)
+        for command in ("env echo gh pr merge 7", "command -v gh pr merge", "# don't merge\necho safe",
+                        'echo "$(# don\'t run gh pr merge\necho safe)"',
+                        'bash -c "cat <<\'EOF\'\ngh pr merge 7\nEOF"'):
+            self.run_hook(command)
+        self.assertEqual(self.calls(), [])
+
+    def test_wrapper_options_are_scoped_before_the_executable(self):
+        for command in ("command gh pr merge 7 --admin --body -v",
+                        "command -p gh pr merge 7 --admin --subject -V",
+                        "command -- gh pr merge 7 --admin --body -v",
+                        'env -S"gh pr merge 7 --admin"',
+                        'env -S "command gh pr merge 7 --admin --body -v"',
+                        "env -S 'gh' pr merge 7 --admin",
+                        "env -S '-u UNUSED gh' pr merge 7 --admin",
+                        "env -S '-- gh' pr merge 7 --admin",
+                        "env --split-string='gh pr merge 7 --admin'",
+                        "env --split-string='gh' pr merge 7 --admin"):
+            with self.subTest(command=command):
+                self.run_hook(command, code=2)
+        for command in ("command -v gh pr merge", "command -pv gh pr merge --body -v",
+                        'env -S "echo gh pr merge"', "env --split-string='echo gh pr merge'"):
+            with self.subTest(command=command):
+                self.run_hook(command)
+        self.assertEqual(self.calls(), [])
+
+    def test_escaped_whitespace_does_not_turn_a_word_internal_hash_into_a_comment(self):
+        for command in ("echo foo\\ # literal; gh pr merge 7 --admin",
+                        "echo foo\\\n#literal; gh pr merge 7 --admin"):
+            with self.subTest(command=command):
+                self.run_hook(command, code=2)
+        for command in ("echo foo\\  # don't run gh pr merge", "echo foo # don't run gh pr merge"):
+            self.run_hook(command)
+        self.assertEqual(self.calls(), [])
+
+    def test_adversarial_shell_execution_oracle_uses_only_the_local_gh_stub(self):
+        direct = "gh pr merge 7 --squash --admin"
+        vectors = ((f'# don\'t bypass\necho "$({direct})"', True),
+                   (f'env bash -c "{direct}"', True), (f'command bash -c "{direct}"', True),
+                   (f'bash -ec "{direct}"', True), (f'sh -xc "{direct}"', True),
+                   (f'eval "{direct}"', True), ("$'gh' pr merge 7 --squash --admin", True),
+                   ("command gh pr merge 7 --admin --body -v", True),
+                   ('env -S"gh pr merge 7 --admin"', True),
+                   ('env -S "command gh pr merge 7 --admin --body -v"', True),
+                   ("env -S 'gh' pr merge 7 --admin", True),
+                   ("env -S '-u UNUSED gh' pr merge 7 --admin", True),
+                   ("echo foo\\ # literal; gh pr merge 7 --admin", True),
+                   ("echo foo\\\n#literal; gh pr merge 7 --admin", True),
+                   ("cat <<-'EOF'\n\tgh pr merge 7 --squash\n\tEOF", False))
+        for command, executes in vectors:
+            with self.subTest(command=command):
+                self.log.unlink(missing_ok=True)
+                self.run_hook(command, code=2 if executes else 0)
+                self.assertEqual(self.calls(), [])
+                # The stub never merges; it only records argv and exits. Running
+                # real Bash establishes whether a vector is executable or prose.
+                subprocess.run(["/bin/bash", "-c", command], cwd=self.repo,
+                               env=self.env, capture_output=True, text=True, timeout=5)
+                actual = any(call[:2] == ["pr", "merge"] for call in self.calls())
+                self.assertEqual(actual, executes)
 
     def test_wrappers_compound_substitution_auto_and_admin_are_blocked(self):
         direct = f"gh pr merge 7 --match-head-commit {HEAD}"
@@ -288,6 +449,7 @@ class StopHookTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.repo = self.root / "project"
         self.repo.mkdir()
+        self.env = isolated_git_environment()
         self.counter = self.root / "count"
         self.session = self.root.name
         self.git("init", "-q")
@@ -301,7 +463,7 @@ class StopHookTests(unittest.TestCase):
         self.write_check()
 
     def git(self, *args):
-        return subprocess.run(["git", *args], cwd=self.repo, capture_output=True, text=True, check=True)
+        return subprocess.run(["git", *args], cwd=self.repo, env=self.env, capture_output=True, text=True, check=True)
 
     def write_check(self, tail="exit 0"):
         import shlex
@@ -312,7 +474,7 @@ class StopHookTests(unittest.TestCase):
         payload = {"cwd": str(self.repo), "session_id": self.session, "stop_hook_active": False}
         payload.update(extra)
         result = subprocess.run([sys.executable, str(STOP)], input=json.dumps(payload),
-                                text=True, capture_output=True, timeout=10)
+                                text=True, capture_output=True, env=self.env, timeout=10)
         self.assertEqual(result.returncode, code, result.stderr)
         return result
 
@@ -365,12 +527,12 @@ class StopHookTests(unittest.TestCase):
     def add_submodule(self):
         origin = self.root / "submodule-source"
         origin.mkdir()
-        subprocess.run(["git", "init", "-q", str(origin)], check=True)
-        subprocess.run(["git", "-C", str(origin), "config", "user.name", "Hook tests"], check=True)
-        subprocess.run(["git", "-C", str(origin), "config", "user.email", "hooks@example.invalid"], check=True)
+        subprocess.run(["git", "init", "-q", str(origin)], env=self.env, check=True)
+        subprocess.run(["git", "-C", str(origin), "config", "user.name", "Hook tests"], env=self.env, check=True)
+        subprocess.run(["git", "-C", str(origin), "config", "user.email", "hooks@example.invalid"], env=self.env, check=True)
         (origin / "source.txt").write_text("initial\n")
-        subprocess.run(["git", "-C", str(origin), "add", "source.txt"], check=True)
-        subprocess.run(["git", "-C", str(origin), "commit", "-qm", "fixture"], check=True)
+        subprocess.run(["git", "-C", str(origin), "add", "source.txt"], env=self.env, check=True)
+        subprocess.run(["git", "-C", str(origin), "commit", "-qm", "fixture"], env=self.env, check=True)
         self.git("-c", "protocol.file.allow=always", "submodule", "add", "-q", str(origin), "dep")
         self.git("commit", "-qm", "add local submodule")
         return self.repo / "dep/source.txt"
@@ -410,7 +572,7 @@ class StopHookTests(unittest.TestCase):
     def test_unborn_repository_runs_opted_in_check(self):
         unborn = self.root / "unborn"
         unborn.mkdir()
-        subprocess.run(["git", "init", "-q", str(unborn)], check=True)
+        subprocess.run(["git", "init", "-q", str(unborn)], env=self.env, check=True)
         (unborn / ".claude").mkdir()
         check = unborn / ".claude/yb-check.sh"
         shutil.copy2(self.check, check)

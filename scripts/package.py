@@ -1,4 +1,5 @@
-"""Validate and package both portable platform editions into dist/."""
+"""Validate and package portable editions into dist/ or an explicit output directory."""
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -9,10 +10,17 @@ GUIDES = ('START-HERE.md', 'SDLC-WORKFLOW.md', 'VALIDATION.md',
           'TOKEN-EFFICIENCY.md', 'PONYTAIL-COMPARISON.md')
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist',
+                        help='Archive directory (default: repository dist/)')
+    args = parser.parse_args(argv)
+    output = args.output_dir.resolve()
+    packaged_roots = ('codex', 'claude-code', 'docs/evidence', 'evals')
+    if any(output.is_relative_to((ROOT / name).resolve()) for name in packaged_roots):
+        parser.error('output directory must be outside packaged source trees')
     subprocess.run([sys.executable, str(ROOT / 'scripts/validate.py')], check=True)
-    output = ROOT / 'dist'
-    output.mkdir(exist_ok=True)
+    output.mkdir(parents=True, exist_ok=True)
     for platform in ('codex', 'claude-code'):
         source = ROOT / platform
         prefix = Path(f'{platform}-engineering-skills')
@@ -29,9 +37,12 @@ def main():
                     content = content.replace(
                         '[Claude Code](claude-code/README.md) and [Codex](codex/README.md) guides',
                         '[platform README](README.md)')
-                    hook_guide = ('HOOKS.md' if platform == 'claude-code' else
-                                  'https://github.com/yshbhrdwj/yb-engineering-skills/blob/main/claude-code/HOOKS.md')
-                    content = content.replace('](claude-code/HOOKS.md)', f']({hook_guide})')
+                    if platform == 'claude-code':
+                        content = content.replace('](claude-code/HOOKS.md)', '](HOOKS.md)')
+                    else:
+                        content = content.replace(
+                            'Optional hooks have a [separate setup](claude-code/HOOKS.md).',
+                            'Optional Claude hooks are supplied in the Claude Code bundle.')
                 bundle.writestr((prefix / name).as_posix(), content)
             for directory in ('docs/evidence', 'evals'):
                 for path in sorted((ROOT / directory).rglob('*')):
@@ -50,7 +61,7 @@ def main():
                 raise RuntimeError(f'Corrupt archive: {target}')
             if sum(p.endswith('/SKILL.md') for p in bundle.namelist()) != 10:
                 raise RuntimeError(f'Expected ten skills in {target}')
-        print(f'Created {target.relative_to(ROOT)} ({target.stat().st_size:,} bytes)')
+        print(f'Created {target} ({target.stat().st_size:,} bytes)')
 
 
 if __name__ == '__main__':

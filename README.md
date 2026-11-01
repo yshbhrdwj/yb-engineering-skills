@@ -1,6 +1,5 @@
 # YB Engineering Skills
 
-[![Validate](https://github.com/yshbhrdwj/yb-engineering-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/yshbhrdwj/yb-engineering-skills/actions/workflows/validate.yml)
 
 Ten focused skills for **Claude Code and Codex**. Small changes take a short path: inspect the affected code, reuse what fits, implement, and run relevant checks. Deeper design and independent review follow the risk of the change.
 
@@ -19,7 +18,7 @@ Ten focused skills for **Claude Code and Codex**. Small changes take a short pat
 | [`yb-merge-pr`](codex/skills/yb-merge-pr/SKILL.md) | Authorized PR merges with review, CI and exact-head checks |
 | [`yb-release-operator`](codex/skills/yb-release-operator/SKILL.md) | Authorized releases, incidents, recovery and maintenance |
 
-Links open the Codex edition. The [Claude Code edition](claude-code/skills) has the same task instructions with native reviewer-fork metadata. No skill pins a model or effort or grants extra permissions; host subagent routing still applies.
+Links open the Codex edition. The [Claude Code edition](claude-code/skills) has the same task instructions with native reviewer-fork metadata. Claude code/security reviews use Explore; frontend review uses a foreground general-purpose fork so available browser tools can be used under normal permissions. No skill pins a model or effort or grants extra permissions; host subagent routing still applies.
 
 ## Install and update
 
@@ -69,6 +68,7 @@ The normal skill installer does not edit host settings. Hook installation is a s
 
 - [Start here](START-HERE.md) and [handoffs](SDLC-WORKFLOW.md)
 - [Validation and limitations](VALIDATION.md)
+- [Independent-review evidence audit](docs/evidence/gemini-review-audit.md)
 - [Text size and efficiency](TOKEN-EFFICIENCY.md)
 - [Ponytail comparison](PONYTAIL-COMPARISON.md)
 - [Public behavioral cases](evals/README.md)
@@ -81,4 +81,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/package.py
 ```
 
-CI runs the structural checks, regression tests and bundle checks on Linux, macOS and Windows. See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md). No open-source license grant has been selected.
+Automatic GitHub CI is disabled. Run the checks locally; the workflow is retained for manual use after explicitly re-enabling it. The last validation run passed on Linux, macOS and Windows. See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md). No open-source license grant has been selected.

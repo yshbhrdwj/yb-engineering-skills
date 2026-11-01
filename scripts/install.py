@@ -21,11 +21,18 @@ class InstallError(Exception):
 
 
 def safe_path(path):
-    """Reject traversal and symlinks before resolving or creating any path."""
+    """Allow verified macOS root aliases, but reject user-controlled links."""
     path = Path(path).expanduser()
     if ".." in path.parts:
         raise InstallError(f"Parent traversal ('..') is not allowed: {path}")
     path = path.absolute()
+    if sys.platform == "darwin":
+        for alias in (Path("/tmp"), Path("/var"), Path("/etc")):
+            if path == alias or alias in path.parents:
+                target = Path("/private") / alias.name
+                if alias.is_symlink() and alias.resolve(strict=True) == target:
+                    path = target / path.relative_to(alias)
+                break
     for part in (path, *path.parents):
         if part.is_symlink():
             raise InstallError(f"Symlinks are not allowed: {part}")

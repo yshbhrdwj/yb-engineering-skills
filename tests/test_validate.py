@@ -59,7 +59,7 @@ class ValidateRepositoryTests(unittest.TestCase):
         self.assert_error("allowed codex fields")
 
     def test_claude_reviewers_must_run_in_foreground_read_only_agent(self):
-        path = self.skill("claude-code") / "SKILL.md"
+        path = self.skill("claude-code", "yb-code-reviewer") / "SKILL.md"
         original = path.read_text()
         for before, after in [("context: fork", "context: inline"),
                               ("agent: Explore", "agent: general-purpose"),
@@ -68,6 +68,11 @@ class ValidateRepositoryTests(unittest.TestCase):
             with self.subTest(after=after):
                 path.write_text(original.replace(before, after, 1))
                 self.assert_error("reviewers require")
+
+    def test_frontend_reviewer_keeps_browser_capable_fork_without_permission_grants(self):
+        path = self.skill("claude-code") / "SKILL.md"
+        path.write_text(path.read_text().replace("agent: general-purpose", "agent: Explore", 1))
+        self.assert_error("agent: general-purpose")
 
     def test_discovery_descriptions_cannot_drift_between_hosts(self):
         path = self.skill("claude-code") / "SKILL.md"

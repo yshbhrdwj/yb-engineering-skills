@@ -1,6 +1,7 @@
 """Verify extracted deliverables, including the optional hook install path."""
 from pathlib import Path
 import importlib.util
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -14,19 +15,40 @@ spec.loader.exec_module(validator)
 
 
 class PackageTests(unittest.TestCase):
+    def test_output_cannot_contaminate_or_include_packaged_source(self):
+        with tempfile.TemporaryDirectory(prefix='yb-package-source-') as temporary:
+            root = Path(temporary).resolve()
+            (root / 'scripts').mkdir()
+            shutil.copy2(ROOT / 'scripts/package.py', root / 'scripts/package.py')
+            for name in ('codex', 'claude-code', 'evals', 'docs/evidence'):
+                source = root / name
+                source.mkdir(parents=True)
+                output = source / 'generated'
+                result = subprocess.run([sys.executable, str(root / 'scripts/package.py'),
+                                         '--output-dir', str(output)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn('outside packaged source trees', result.stderr)
+                self.assertFalse(output.exists())
+
     def test_bundles_include_ten_skills_and_working_hook_installer(self):
-        result = subprocess.run([sys.executable, str(ROOT / 'scripts/package.py')],
-                                capture_output=True, text=True)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         with tempfile.TemporaryDirectory(prefix='yb-bundle-') as temporary:
             base = Path(temporary).resolve()
+            output = base / 'archives'
+            # Explicit output keeps ordinary test runs from changing ROOT/dist.
+            before = {p.name: p.read_bytes() for p in (ROOT / 'dist').glob('*.zip')}
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/package.py'),
+                                     '--output-dir', str(output)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in (ROOT / 'dist').glob('*.zip')})
             for platform in ('codex', 'claude-code'):
-                with zipfile.ZipFile(ROOT / 'dist' / f'{platform}-engineering-skills.zip') as bundle:
+                with zipfile.ZipFile(output / f'{platform}-engineering-skills.zip') as bundle:
                     self.assertIsNone(bundle.testzip())
                     self.assertEqual(sum(x.endswith('/SKILL.md') for x in bundle.namelist()), 10)
                     bundle.extractall(base)
                 extracted = base / f'{platform}-engineering-skills'
                 self.assertTrue((extracted / 'evals/cases.json').is_file())
+                self.assertNotIn('blob/main/claude-code/HOOKS.md',
+                                 (extracted / 'START-HERE.md').read_text())
                 self.assertTrue((extracted / 'docs/evidence/2026-11-01-eval-audit.md').is_file())
                 links = validator.Validator(extracted)
                 links.check_markdown()
