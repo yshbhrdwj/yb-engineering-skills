@@ -6,7 +6,7 @@ Updated 1 November 2026. Ten roles, each packaged for Claude Code and Codex. Evi
 
 The host-aware validator checks exact skill inventory, portable names/descriptions, Claude reviewer fork configuration, Codex UI metadata, matching task instructions and references, allowed payloads, and local Markdown links. It deliberately accepts a narrow authored YAML format rather than arbitrary YAML.
 
-The 99 locally passing regression tests exercise safe skill updates, backups and explicit migration; malformed metadata and platform drift; hook approval/target/CI logic with a stub GitHub CLI; project-only reviewer trust; Stop recursion, timeout, content caching and failures; hook installation preserving unrelated settings; evaluation accounting; and extracted bundle installation. All GitHub calls in the hook tests are local mocks; no test merges a live PR.
+The 102 locally passing regression tests exercise safe skill updates, backups and explicit migration; malformed metadata and platform drift; hook approval/target/CI logic with a stub GitHub CLI; project-only reviewer trust; Stop recursion, timeout, content caching and failures; hook installation preserving unrelated settings; evaluation accounting; and extracted bundle installation. All GitHub calls in the hook tests are local mocks; no test merges a live PR.
 
 The bundled skill-creator validator passes all ten Codex folders. Its generic Agent Skills schema rejects Claude Code runtime fields such as `argument-hint`, `context`, `agent` and `background`; the host-aware validator checks those fields against the [Claude Code reference](https://code.claude.com/docs/en/skills) instead. Passing these checks does not prove correct automatic selection or reasoning.
 

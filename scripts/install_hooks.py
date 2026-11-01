@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import ntpath
 import os
 from pathlib import Path
 import re
@@ -39,9 +40,14 @@ def command_for(path):
     return subprocess.list2cmdline(args) if os.name == "nt" else shlex.join(args)
 
 
-def owned(command, folder, home):
+def owned(command, folder, home, args=None):
     if not isinstance(command, str):
         return False
+    scripts = {str(folder / name) for name in FILES}
+    python_name = r"python(?:[0-9]+(?:\.[0-9]+)*)?(?:\.exe)?"
+    if args is not None:
+        return (isinstance(args, list) and len(args) == 1 and isinstance(args[0], str) and args[0] in scripts
+                and re.fullmatch(python_name, ntpath.basename(command), re.I) is not None)
     candidates = {command_for(folder / name) for name in FILES}
     candidates.update(str(folder / name) for name in LEGACY)
     candidates.update(shlex.quote(str(folder / name)) for name in LEGACY)
@@ -51,15 +57,24 @@ def owned(command, folder, home):
         candidates.update(f"~/.claude/hooks/{name}" for name in LEGACY)
     if command in candidates:
         return True
-    try:
-        tokens = shlex.split(command, posix=os.name != "nt")
-    except ValueError:
-        return False
-    if len(tokens) != 2:
-        return False
-    interpreter, script = (token.strip('"') for token in tokens)
-    return (re.fullmatch(r"python(?:[0-9]+(?:\.[0-9]+)*)?(?:\.exe)?", Path(interpreter).name, re.I) is not None
-            and script in {str(folder / name) for name in FILES})
+    # Existing settings can contain list2cmdline or POSIX shlex quoting, including
+    # after an interpreter upgrade or a move between shell environments. Parse
+    # both representations; never infer ownership from a path substring.
+    for posix in (False, True):
+        try:
+            tokens = shlex.split(command, posix=posix)
+        except ValueError:
+            continue
+        if len(tokens) != 2:
+            continue
+        interpreter, script = (
+            token[1:-1] if len(token) >= 2 and token[0] in {"'", '"'} and token[-1] == token[0] else token
+            for token in tokens
+        )
+        if (re.fullmatch(python_name, ntpath.basename(interpreter), re.I)
+                and script in scripts):
+            return True
+    return False
 
 
 def updated_settings(original, folder, home):
@@ -78,11 +93,13 @@ def updated_settings(original, folder, home):
             group = dict(group)
             group["hooks"] = [hook for hook in group["hooks"]
                               if not (isinstance(hook, dict) and hook.get("type") == "command"
-                                      and owned(hook.get("command"), folder, home))]
+                                      and owned(hook.get("command"), folder, home, hook.get("args")))]
             if group["hooks"]:
                 kept.append(group)
         file = FILES[0] if event == "PreToolUse" else FILES[1]
-        group = {"hooks": [{"type": "command", "command": command_for(folder / file), "timeout": 120 if event == "PreToolUse" else 330}]}
+        group = {"hooks": [{"type": "command", "command": sys.executable,
+                             "args": [str(folder / file)], "onFailure": "block",
+                             "timeout": 120 if event == "PreToolUse" else 330}]}
         if event == "PreToolUse":
             group["matcher"] = "Bash"
         kept.append(group)

@@ -1,7 +1,8 @@
 """Opt-in hook installation and migration in disposable homes/projects."""
+import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import shutil
 import subprocess
 import sys
@@ -10,6 +11,9 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/install_hooks.py"
+SPEC = importlib.util.spec_from_file_location("hook_installer", SCRIPT)
+INSTALLER = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(INSTALLER)
 
 
 class HookInstallTests(unittest.TestCase):
@@ -42,8 +46,11 @@ class HookInstallTests(unittest.TestCase):
         self.run_installer("--user", "--home", str(self.home))
         settings = self.settings()
         self.assertEqual(settings["hooks"]["PreToolUse"][0]["matcher"], "Bash")
-        self.assertIn("yb_merge_gate.py", settings["hooks"]["PreToolUse"][0]["hooks"][0]["command"])
-        self.assertIn("yb_stop_check.py", settings["hooks"]["Stop"][0]["hooks"][0]["command"])
+        for event, name in (("PreToolUse", "yb_merge_gate.py"), ("Stop", "yb_stop_check.py")):
+            hook = settings["hooks"][event][0]["hooks"][0]
+            self.assertEqual(hook["command"], sys.executable)
+            self.assertEqual(hook["args"], [str(self.home / ".claude/hooks" / name)])
+            self.assertEqual(hook["onFailure"], "block")
         config = json.loads((self.home / ".claude/yb-hooks.json").read_text())
         self.assertEqual(config["trusted_reviewers"], [])
         for name in ("yb_merge_gate.py", "yb_stop_check.py"):
@@ -115,18 +122,63 @@ class HookInstallTests(unittest.TestCase):
         self.assertEqual(json.loads((backup / ".claude/settings.json").read_text()), original)
         self.assertEqual((backup / ".claude/hooks/yb-merge-gate.sh").read_text(), "old unsafe hook")
 
+    def test_windows_managed_python_paths_support_both_quote_conventions_on_every_host(self):
+        import shlex
+        home = PureWindowsPath(r"C:\Users\Example User")
+        folder = home / ".claude" / "hooks"
+        for interpreter in (r"C:\Old Python\python3.10.exe", "/old/python3.10"):
+            for name in ("yb_merge_gate.py", "yb_stop_check.py"):
+                arguments = [interpreter, str(folder / name)]
+                for command in (subprocess.list2cmdline(arguments), shlex.join(arguments)):
+                    with self.subTest(command=command):
+                        self.assertTrue(INSTALLER.owned(command, folder, home))
+
+    def test_exec_form_ownership_is_exact_across_platform_path_representations(self):
+        home = PureWindowsPath(r"C:\Users\Example User")
+        folder = home / ".claude" / "hooks"
+        script = str(folder / "yb_merge_gate.py")
+        self.assertTrue(INSTALLER.owned(r"C:\Old Python\python.exe", folder, home, [script]))
+        self.assertFalse(INSTALLER.owned(r"C:\Old Python\other.exe", folder, home, [script]))
+        self.assertFalse(INSTALLER.owned("python.exe", folder, home, [script, "--extra"]))
+        self.assertFalse(INSTALLER.owned("python.exe", folder, home, [script + ".bak"]))
+        self.assertFalse(INSTALLER.owned("python.exe", folder, home, []))
+
+    def test_python_ownership_requires_exact_script_and_no_extra_commands(self):
+        import shlex
+        home = PureWindowsPath(r"C:\Users\Example User")
+        folder = home / ".claude" / "hooks"
+        good = subprocess.list2cmdline([r"C:\Old Python\python.exe", str(folder / "yb_merge_gate.py")])
+        invalid = [good + " --extra", good + " && other-command", good + "; other-command",
+                   subprocess.list2cmdline(["other.exe", str(folder / "yb_merge_gate.py")]),
+                   subprocess.list2cmdline(["python.exe", str(home / "other/yb_merge_gate.py")]),
+                   shlex.join(["python3", str(folder / "yb_merge_gate.py") + ".bak"]),
+                   "command " + good]
+        for command in invalid:
+            with self.subTest(command=command):
+                self.assertFalse(INSTALLER.owned(command, folder, home))
+
     def test_reinstall_retires_managed_python_command_after_interpreter_changes(self):
         self.run_installer("--user", "--home", str(self.home))
         settings = self.settings()
         command = settings["hooks"]["PreToolUse"][0]["hooks"][0]
         import shlex
         command["command"] = shlex.join(["/old/python3.10", str(self.home / ".claude/hooks/yb_merge_gate.py")])
+        command.pop("args")
         path = self.home / ".claude/settings.json"
         path.write_text(json.dumps(settings))
         self.run_installer("--user", "--home", str(self.home), "--update")
         hooks = self.settings()["hooks"]["PreToolUse"]
         self.assertEqual(len(hooks), 1)
         self.assertNotIn("/old/python", hooks[0]["hooks"][0]["command"])
+        # An exec-form entry from an older Python installation is also ours.
+        settings = self.settings()
+        settings["hooks"]["PreToolUse"][0]["hooks"][0]["command"] = "/old/python3.10"
+        path.write_text(json.dumps(settings))
+        self.run_installer("--user", "--home", str(self.home), "--update")
+        hooks = self.settings()["hooks"]["PreToolUse"]
+        self.assertEqual(len(hooks), 1)
+        self.assertEqual(hooks[0]["hooks"][0]["command"], sys.executable)
+        self.assertEqual(hooks[0]["hooks"][0]["args"], [str(self.home / ".claude/hooks/yb_merge_gate.py")])
 
     def test_project_install_does_not_touch_home(self):
         project = self.root / "project"

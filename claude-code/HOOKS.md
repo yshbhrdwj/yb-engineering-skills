@@ -4,7 +4,7 @@ These hooks are opt-in guardrails for Claude Code Bash merges and project checks
 
 ## Install or repair
 
-Requires Python 3.10+, Git, and authenticated `gh` for merge checks. No `jq`, `bc`, or third-party Python package is needed. Choose a user installation or an existing project:
+Requires Python 3.10+, Git, and authenticated `gh` for merge checks. No `jq`, `bc`, or third-party Python package is needed. The installer uses exec-form `command` plus `args` with `onFailure: "block"`, so Python paths need no shell quoting and invocation failures block instead of silently bypassing the check. Choose a user installation or an existing project:
 
 ```sh
 python3 scripts/install_hooks.py --user --trusted-reviewer 'your-reviewer-account' --dry-run
@@ -42,7 +42,7 @@ GitHub must report merge state `CLEAN` or `HAS_HOOKS`, as well as no merge confl
 
 Compound commands, shell wrappers, command substitutions, `--auto`, `--admin`, and unrecognized merge options stop with an instruction to use a supported direct command. Ordinary `echo`/commit-message prose mentioning the command is ignored. Literal bodies of quoted heredocs are ignored; unquoted or otherwise unsupported heredocs containing executable-looking merge commands may be conservatively rejected. Do not rewrite a rejected command to evade the guard.
 
-This parser is deliberately finite. Aliases, arbitrary scripts, other executables, and direct API merges are outside its coverage. Review dismissal or CI changes can race the hook; only GitHub protection enforces those conditions at the server. Use required reviews/checks and stale-approval dismissal in branch protection for enforcement.
+This parser is deliberately finite. Aliases, arbitrary scripts, other executables, and direct API merges are outside its coverage. The hook matches the Bash tool; PowerShell tool calls are outside this parser, including on Windows hosts that use PowerShell as their primary shell. Review dismissal or CI changes can race the hook; only GitHub protection enforces those conditions at the server. Use required reviews/checks and stale-approval dismissal in branch protection for enforcement.
 
 ## Project checks on Stop
 
@@ -63,6 +63,6 @@ Checks default to 120 seconds; `check_timeout_seconds` in the project's config m
 
 Tests execute hook entrypoints against local Git fixtures and a stub `gh`; no real PR is merged. They cover review states, trust, exact-head matching, target selection, required checks, failures, Stop caching, recursion, and timeout. Installation tests use disposable homes/projects.
 
-To disable, remove only the Python hook entries named `yb_merge_gate.py` and `yb_stop_check.py` from the selected `.claude/settings.json`. The backup contains previous settings and retired scripts; restoring the entire settings file also restores its other settings as of that backup, so compare before restoring.
+To disable, remove only the Python hook entries whose `args` point to `yb_merge_gate.py` and `yb_stop_check.py` from the selected `.claude/settings.json`. The backup contains previous settings and retired scripts; restoring the entire settings file also restores its other settings as of that backup, so compare before restoring.
 
 Configuration and hook semantics checked on 1 November 2026 against the [Claude Code hooks reference](https://code.claude.com/docs/en/hooks), [GitHub CLI merge reference](https://cli.github.com/manual/gh_pr_merge), and [checks reference](https://cli.github.com/manual/gh_pr_checks). Local checks and hooks are evidence aids; approval and deployment authority still come from the user and repository policy.
