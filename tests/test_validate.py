@@ -44,44 +44,47 @@ class ValidateRepositoryTests(unittest.TestCase):
 
     def test_shared_core_drift(self):
         path = self.skill("claude-code") / "SKILL.md"
-        path.write_text(path.read_text().replace("\n## Claude Code integration", "\nChanged instruction.\n\n## Claude Code integration", 1))
+        original = path.read_text(encoding="utf-8")
+        changed = original.replace("\n## Claude Code integration", "\nChanged instruction.\n\n## Claude Code integration", 1)
+        self.assertNotEqual(changed, original, "mutation target missing; update this test")
+        path.write_text(changed, encoding="utf-8")
         self.assert_error("shared core differs from Codex")
 
     def test_platform_frontmatter_differs_without_instruction_drift(self):
         self.assertEqual(validator.validate(self.root), [])
         path = self.skill("claude-code") / "SKILL.md"
-        path.write_text(path.read_text().replace('argument-hint:', 'unused-setting:', 1))
+        path.write_text(path.read_text(encoding="utf-8").replace('argument-hint:', 'unused-setting:', 1), encoding="utf-8")
         self.assert_error("allowed claude-code fields")
 
     def test_claude_runtime_fields_cannot_leak_into_codex(self):
         path = self.skill() / "SKILL.md"
-        path.write_text(path.read_text().replace("---\n", "---\ncontext: fork\n", 1))
+        path.write_text(path.read_text(encoding="utf-8").replace("---\n", "---\ncontext: fork\n", 1), encoding="utf-8")
         self.assert_error("allowed codex fields")
 
     def test_claude_reviewers_must_run_in_foreground_read_only_agent(self):
         path = self.skill("claude-code", "yb-code-reviewer") / "SKILL.md"
-        original = path.read_text()
+        original = path.read_text(encoding="utf-8")
         for before, after in [("context: fork", "context: inline"),
                               ("agent: Explore", "agent: general-purpose"),
                               ("background: false", "background: true"),
                               ("background: false", 'background: "false"')]:
             with self.subTest(after=after):
-                path.write_text(original.replace(before, after, 1))
+                path.write_text(original.replace(before, after, 1), encoding="utf-8")
                 self.assert_error("reviewers require")
 
     def test_frontend_reviewer_keeps_browser_capable_fork_without_permission_grants(self):
         path = self.skill("claude-code") / "SKILL.md"
-        path.write_text(path.read_text().replace("agent: general-purpose", "agent: Explore", 1))
+        path.write_text(path.read_text(encoding="utf-8").replace("agent: general-purpose", "agent: Explore", 1), encoding="utf-8")
         self.assert_error("agent: general-purpose")
 
     def test_discovery_descriptions_cannot_drift_between_hosts(self):
         path = self.skill("claude-code") / "SKILL.md"
-        path.write_text(path.read_text().replace("description: ", "description: Different wording. ", 1))
+        path.write_text(path.read_text(encoding="utf-8").replace("description: ", "description: Different wording. ", 1), encoding="utf-8")
         self.assert_error("description differs from Codex")
 
     def test_reference_drift(self):
         path = self.skill("claude-code") / "references/interaction-probes.md"
-        path.write_text(path.read_text() + "\nA platform-specific change.\n")
+        path.write_text(path.read_text(encoding="utf-8") + "\nA platform-specific change.\n", encoding="utf-8")
         self.assert_error("reference differs or is missing between platforms")
 
     def test_exact_skill_inventory(self):
@@ -91,60 +94,60 @@ class ValidateRepositoryTests(unittest.TestCase):
 
     def test_frontmatter_name_and_description(self):
         path = self.skill() / "SKILL.md"
-        text = path.read_text().replace("name: yb-frontend-reviewer", "name: Invalid_Name", 1)
+        text = path.read_text(encoding="utf-8").replace("name: yb-frontend-reviewer", "name: Invalid_Name", 1)
         lines = text.splitlines()
         lines[2] = "description: " + "x" * 201
-        path.write_text("\n".join(lines) + "\n")
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         self.assert_error("frontmatter name must match")
         self.assert_error("200-character portable limit")
 
     def test_missing_host_footer(self):
         path = self.skill() / "SKILL.md"
-        path.write_text(path.read_text().split("\n## Codex integration", 1)[0])
+        path.write_text(path.read_text(encoding="utf-8").split("\n## Codex integration", 1)[0], encoding="utf-8")
         self.assert_error("complete Codex integration footer at the end")
 
     def test_frontmatter_rejects_yaml_nonstrings_and_decoded_controls(self):
         path = self.skill() / "SKILL.md"
-        original = path.read_text()
+        original = path.read_text(encoding="utf-8")
         for value, expected in [('null', 'ambiguous YAML scalar'),
                                 ('Review: code', 'ambiguous YAML scalar'),
                                 ('"\\u0000"', 'nonempty single-line string')]:
             with self.subTest(value=value):
                 lines = original.splitlines()
                 lines[2] = "description: " + value
-                path.write_text("\n".join(lines) + "\n")
+                path.write_text("\n".join(lines) + "\n", encoding="utf-8")
                 self.assert_error(expected)
 
     def test_metadata_must_invoke_its_skill(self):
         path = self.skill() / "agents/openai.yaml"
-        path.write_text(path.read_text().replace("$yb-frontend-reviewer", "$yb-software-engineer"))
+        path.write_text(path.read_text(encoding="utf-8").replace("$yb-frontend-reviewer", "$yb-software-engineer"), encoding="utf-8")
         self.assert_error("default_prompt must explicitly invoke $yb-frontend-reviewer")
 
     def test_metadata_rejects_duplicate_unquoted_and_short_fields(self):
         path = self.skill() / "agents/openai.yaml"
         path.write_text('interface:\n  display_name: "First"\n  display_name: "Second"\n'
-                        '  short_description: "tiny"\n  default_prompt: unquoted\n')
+                        '  short_description: "tiny"\n  default_prompt: unquoted\n', encoding="utf-8")
         self.assert_error("duplicate interface field")
         self.assert_error("JSON-quoted string")
         self.assert_error("25–64 characters")
 
     def test_docs_links_and_heading_anchors(self):
-        (self.root / "Guide with spaces.md").write_text("# Guide\n\n## Details\n\n## Details\n")
+        (self.root / "Guide with spaces.md").write_text("# Guide\n\n## Details\n\n## Details\n", encoding="utf-8")
         path = self.root / "README.md"
         path.write_text('# Readme\n[guide](<Guide with spaces.md#details-1>)\n'
                         '[reference][guide]\n[guide]: Guide%20with%20spaces.md#details\n'
-                        '`[not a link](missing.md)`\n```md\n[example](also-missing.md)\n```\n')
+                        '`[not a link](missing.md)`\n```md\n[example](also-missing.md)\n```\n', encoding="utf-8")
         self.assertEqual(validator.validate(self.root), [])
-        path.write_text(path.read_text() + "\n[bad](Guide%20with%20spaces.md#absent)\n")
+        path.write_text(path.read_text(encoding="utf-8") + "\n[bad](Guide%20with%20spaces.md#absent)\n", encoding="utf-8")
         self.assert_error("unknown heading anchor")
 
     def test_docs_missing_and_escaping_links(self):
-        (self.root / "README.md").write_text("[missing](absent.md)\n[outside](../outside.md)\n")
+        (self.root / "README.md").write_text("[missing](absent.md)\n[outside](../outside.md)\n", encoding="utf-8")
         self.assert_error("missing local link target")
         self.assert_error("local link escapes the repository")
 
     def test_malformed_local_link_is_an_error_not_an_exception(self):
-        (self.root / "README.md").write_text("[invalid](bad%00path.md)\n")
+        (self.root / "README.md").write_text("[invalid](bad%00path.md)\n", encoding="utf-8")
         self.assert_error("invalid local link")
 
     def test_binary_and_unexpected_payloads(self):
@@ -155,7 +158,7 @@ class ValidateRepositoryTests(unittest.TestCase):
 
     def test_symlink_is_rejected_without_following_it(self):
         target = self.root / "outside.md"
-        target.write_text("# Not a packaged reference\n")
+        target.write_text("# Not a packaged reference\n", encoding="utf-8")
         link = self.skill() / "references/linked.md"
         try:
             link.symlink_to(target)

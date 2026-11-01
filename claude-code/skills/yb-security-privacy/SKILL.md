@@ -33,4 +33,4 @@ Findings first with priority/confidence, verified location, prerequisites, path 
 
 ## Claude Code integration
 
-Follow applicable `CLAUDE.md`, the active planning mode, and permissions. Use available tools; delegate bounded independent work only when useful. The skill does not change host configuration.
+Follow applicable `CLAUDE.md`, the active planning mode, and permissions. Use available tools; delegate bounded independent work only when useful. Load each applicable named skill; for delegated work, pass the relevant skill path or instructions with the requirements and raw artifacts. The skill does not change host configuration.

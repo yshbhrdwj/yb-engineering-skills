@@ -47,7 +47,15 @@ def main(argv=None):
             for directory in ('docs/evidence', 'evals'):
                 for path in sorted((ROOT / directory).rglob('*')):
                     if path.is_file() and '__pycache__' not in path.parts:
-                        bundle.write(path, (prefix / path.relative_to(ROOT)).as_posix())
+                        target_path = (prefix / path.relative_to(ROOT)).as_posix()
+                        if path.suffix == '.md':
+                            content = path.read_text(encoding='utf-8')
+                            # Shared evidence links to a source edition; bundles expose skills/ directly.
+                            for source_platform in ('codex', 'claude-code'):
+                                content = content.replace(f'](../../{source_platform}/skills/', '](../../skills/')
+                            bundle.writestr(target_path, content)
+                        else:
+                            bundle.write(path, target_path)
             helpers = ['summarize_evals.py']
             if platform == 'claude-code':
                 helpers.append('install_hooks.py')

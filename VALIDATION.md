@@ -24,6 +24,10 @@ Claude Code `2.1.301` listed all ten project skills with user hooks and unrelate
 
 ## Historical interrupted trials
 
+The [September 28 behavior-pass record](docs/evidence/2026-09-28-behavior-pass.md) preserves PR #1’s reported trial and text counts with their original limits. Its raw trial artifacts were not regraded or rerun during integration; it does not validate the current candidate.
+
+The [PR #1 integration record](docs/evidence/pr1-integration.md) distinguishes preserved intent from superseded procedures and records the validator fixture's local encoding replay. Simulated cp1252-default I/O reproduced a Unicode decoding failure before explicit UTF-8 fixture I/O; all 21 fixture tests passed after the repair. This was not a native Windows run.
+
 The earlier draft's saved and recovered trials are audited in [the historical report](docs/evidence/2026-11-01-eval-audit.md). Seventeen complete saved old/new comparisons passed 57/69 versus 58/69 assertions, with 4.21% more recorded tokens and 5.56% more summed time in the new arm. Weak assertions, one sample, plugin contamination and missing harness metadata prevent a causal performance claim. Those numbers do not score this revision.
 
 No controlled result establishes superiority over Ponytail. [Text-size reductions](TOKEN-EFFICIENCY.md) are measured separately from runtime costs. No production deployment, real payment/message, external user study, live-data exploit or full accessibility-conformance test was performed.

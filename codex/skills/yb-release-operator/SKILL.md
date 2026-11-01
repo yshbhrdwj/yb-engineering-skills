@@ -27,4 +27,4 @@ State the operational outcome, exact target/revision, actual checks, remaining r
 
 ## Codex integration
 
-Follow applicable `AGENTS.md`, task mode, permissions, and requested output format. Use available tools; delegate bounded independent work only when useful. The skill does not change host configuration.
+Follow applicable `AGENTS.md`, task mode, permissions, and requested output format. Use available tools; delegate bounded independent work only when useful. Load each applicable named skill; for delegated work, pass the relevant skill path or instructions with the requirements and raw artifacts. The skill does not change host configuration.
